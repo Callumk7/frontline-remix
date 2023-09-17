@@ -1,41 +1,42 @@
-import type { MetaFunction } from "@remix-run/node";
+import { GameCardCover } from "@/components/games/GameCard";
+import { gameInclude } from "@/components/games/types";
+import { authenticator } from "@/services/auth.server";
+import { db } from "@/util/db/db.server";
+import { LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
+  return [{ title: "playQ" }, { name: "description", content: "This is the way" }];
+};
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const games = await db.game.findMany({
+    include: gameInclude,
+  });
+
+  const session = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login",
+  });
+
+  return typedjson({ games, session });
 };
 
 export default function Index() {
+  const data = useTypedLoaderData<typeof loader>();
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
+    <div>
+      <h1>Home Page</h1>
+      <div>
+        <h2>user information</h2>
+        <p>username:</p>
+        <p>{data.session.username}</p>
+        <p>{data.session.id}</p>
+      </div>
+      {data.games.map((game, i) => (
+        <GameCardCover key={i} game={game} isSelected={false}>
+          <div>children</div>
+        </GameCardCover>
+      ))}
     </div>
   );
 }
