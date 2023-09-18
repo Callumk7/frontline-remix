@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/form";
 import { authenticator } from "@/services/auth.server";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
@@ -14,17 +16,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   });
 };
 
+// TODO: add labels
+// TODO: add client and server side validation
 export default function LoginPage() {
   return (
-    <form className="flex flex-col gap-5" method="post">
-      <input
+    <form className="flex flex-col gap-5 w-80 mx-auto mt-10" method="post">
+      <Input
         className="bg-background border"
         type="email"
         name="email"
         placeholder="Enter your email"
         required
       />
-      <input
+      <Input
         className="bg-background border"
         type="password"
         name="password"
@@ -32,7 +36,7 @@ export default function LoginPage() {
         placeholder="Choose your password"
         required
       />
-      <button className="bg-primary text-primary-foreground">Sign In</button>
+      <Button>Sign In</Button>
     </form>
   );
 }

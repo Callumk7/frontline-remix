@@ -1,5 +1,5 @@
-import { GameFromCollectionWithPlaylists } from "@/types";
-import { GameCardCover } from "./GameCardCover";
+import { GameCardCover } from "./GameCard";
+import { GameFromCollectionWithPlaylists } from "./types";
 
 type ControlComponentType<P extends object> = (
   props: P & { game: GameFromCollectionWithPlaylists },
@@ -11,7 +11,7 @@ interface CoverViewProps<P extends object, T extends GameFromCollectionWithPlayl
   controlProps: P;
   selectedGames: number[];
 }
-export function CoverView<P extends object, T extends GameFromCollectionWithPlaylists>({
+export function GameView<P extends object, T extends GameFromCollectionWithPlaylists>({
   games,
   ControlComponent,
   controlProps,

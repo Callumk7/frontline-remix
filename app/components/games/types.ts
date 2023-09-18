@@ -24,3 +24,22 @@ export const gameInclude = {
 export type GameWithCoverAndGenres = Prisma.GameGetPayload<{
 	include: typeof gameInclude;
 }>;
+
+export const gameFromCollectionInclude = {
+	cover: true,
+	genres: {
+		include: {
+			genre: true,
+		},
+	},
+	users: true,
+	playlists: {
+		include: {
+			playlist: true,
+		},
+	},
+} satisfies Prisma.GameInclude;
+
+export type GameFromCollectionWithPlaylists = Prisma.GameGetPayload<{
+	include: typeof gameFromCollectionInclude;
+}>;
