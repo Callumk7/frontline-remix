@@ -2,6 +2,7 @@
 module.exports = {
 	plugins: ["eslint-plugin-react", "eslint-plugin-react-hooks", "@typescript-eslint"],
 	extends: [
+		"eslint:recommended",
 		"@remix-run/eslint-config",
 		"@remix-run/eslint-config/node",
 		"plugin:react/recommended",
@@ -14,4 +15,7 @@ module.exports = {
 		"react/react-in-jsx-scope": "off",
 	},
 	parser: "@typescript-eslint/parser",
+	parserOptions: {
+		project: "./tsconfig.json",
+	},
 };

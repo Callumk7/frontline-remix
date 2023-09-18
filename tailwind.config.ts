@@ -7,8 +7,7 @@ export default {
 			colors: {
 				background: {
 					DEFAULT: "hsl(var(--background))",
-					95: "hsl(var(--background-95))",
-					90: "hsl(var(--background-90))",
+					menu: "hsl(var(--background-menu))",
 				},
 				foreground: "hsl(var(--foreground))",
 				destructive: {
@@ -47,5 +46,5 @@ export default {
 			},
 		},
 	},
-	plugins: [],
+	plugins: [require("tailwindcss-animate")],
 } satisfies Config;

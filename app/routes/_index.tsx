@@ -1,17 +1,33 @@
-import { GameCardCover } from "@/components/games/GameCard";
-import { gameInclude } from "@/components/games/types";
+import { GameView } from "@/components/games/GameView";
+import {
+  GameFromCollectionWithPlaylists,
+  gameFromCollectionInclude,
+} from "@/components/games/types";
+import { Button } from "@/components/ui/button";
 import { authenticator } from "@/services/auth.server";
 import { db } from "@/util/db/db.server";
-import { LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  type MetaFunction,
+} from "@remix-run/node";
+import { Form, useFetcher } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 
 export const meta: MetaFunction = () => {
   return [{ title: "playQ" }, { name: "description", content: "This is the way" }];
 };
 
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const body = await request.formData();
+  const gameId = body.get("id");
+  console.log(gameId);
+  return gameId;
+};
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const games = await db.game.findMany({
-    include: gameInclude,
+    include: gameFromCollectionInclude,
   });
 
   const session = await authenticator.isAuthenticated(request, {
@@ -22,21 +38,35 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function Index() {
-  const data = useTypedLoaderData<typeof loader>();
+  const { games, session } = useTypedLoaderData<typeof loader>();
   return (
-    <div>
-      <h1>Home Page</h1>
-      <div>
-        <h2>user information</h2>
-        <p>username:</p>
-        <p>{data.session.username}</p>
-        <p>{data.session.id}</p>
-      </div>
-      {data.games.map((game, i) => (
-        <GameCardCover key={i} game={game} isSelected={false}>
-          <div>children</div>
-        </GameCardCover>
-      ))}
+    <GameView
+      games={games}
+      selectedGames={[]}
+      ControlComponent={HomeControlComponent}
+      controlProps={{ userId: session.id }}
+    />
+  );
+}
+
+function HomeControlComponent({
+  game,
+  userId,
+}: {
+  game: GameFromCollectionWithPlaylists;
+  userId: string;
+}) {
+  const fetcher = useFetcher();
+  return (
+    <div className="flex flex-row justify-between">
+      <fetcher.Form method="post" action="/collection/add">
+        <input type="hidden" name="userId" value={userId} />
+        <input type="hidden" name="gameId" value={game.gameId} />
+        <Button type="submit" variant={"secondary"}>
+          Save to Collection
+        </Button>
+      </fetcher.Form>
+      {fetcher.state}
     </div>
   );
 }

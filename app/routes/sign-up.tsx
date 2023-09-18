@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/form";
 import { createNewUser } from "@/services/auth.server";
 import { ActionFunctionArgs } from "@remix-run/node";
 
@@ -14,22 +16,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function SignUpPage() {
   return (
-    <form className="flex flex-col gap-5" method="post">
-      <input
+    <form className="flex flex-col gap-5 w-80 mx-auto mt-10" method="post">
+      <Input
         className="bg-background border"
         type="email"
         name="email"
         placeholder="Enter your email"
         required
       />
-      <input
+      <Input
         className="bg-background border"
         type="text"
         name="username"
         placeholder="Enter your user name"
         required
       />
-      <input
+      <Input
         className="bg-background border"
         type="password"
         name="password"
@@ -37,7 +39,7 @@ export default function SignUpPage() {
         placeholder="Choose your password"
         required
       />
-      <button className="bg-primary text-primary-foreground">Create Account</button>
+      <Button>Create Account</Button>
     </form>
   );
 }
