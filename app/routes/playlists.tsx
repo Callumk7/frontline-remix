@@ -38,6 +38,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function PlaylistPage() {
   const { session, playlists } = useTypedLoaderData<typeof loader>();
+
   return (
     <div className="mx-auto mt-5 flex w-4/5 flex-row justify-start gap-4 px-4 md:w-full">
       <div className="hidden md:block">

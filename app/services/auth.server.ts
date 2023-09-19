@@ -5,18 +5,19 @@ import invariant from "tiny-invariant";
 import bcrypt from "bcrypt";
 import { db } from "@/util/db/db.server";
 
-type UserData = {
+export interface UserData {
 	id: string;
+	name?: string;
 	username: string;
 	email: string;
-};
+}
 
-export let authenticator = new Authenticator<UserData>(sessionStorage);
+export const authenticator = new Authenticator<UserData>(sessionStorage);
 
 authenticator.use(
 	new FormStrategy(async ({ form }) => {
-		let email = form.get("email");
-		let password = form.get("password");
+		const email = form.get("email");
+		const password = form.get("password");
 
 		console.log("here");
 		console.log(email);
@@ -27,7 +28,7 @@ authenticator.use(
 		invariant(typeof password === "string", "password must be a string");
 		invariant(password.length > 0, "password must not be empty");
 
-		let user = await login(email, password);
+		const user = await login(email, password);
 		console.log(`user: ${user.username}`);
 		return user;
 	}),
@@ -112,7 +113,7 @@ const getUser = async (email: string) => {
 		select: selectUser,
 	});
 
-	console.log(`returned user: ${user}`);
+	console.log(`returned user: ${user?.email}`);
 
 	return user;
 };

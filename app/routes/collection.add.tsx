@@ -1,4 +1,5 @@
 import { db } from "@/util/db/db.server";
+import { invalidateCache } from "@/util/redis/invalidate-cache";
 import { ActionFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
@@ -23,9 +24,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         gameId: Number(gameId),
       },
     });
-    console.log(
-      `added collection ${createCollection.userId}, ${createCollection.gameId}`,
-    );
+
+    if (createCollection) {
+      console.log(
+        `added collection ${createCollection.userId}, ${createCollection.gameId}`,
+      );
+
+      await invalidateCache(userId.toString(), "collection");
+    }
 
     const resBody = JSON.stringify(createCollection);
     return new Response(resBody, { status: 200 });
