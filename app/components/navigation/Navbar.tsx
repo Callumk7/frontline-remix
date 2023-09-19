@@ -1,5 +1,6 @@
 import { Link, NavLink } from "@remix-run/react";
 import { Button } from "../ui/button";
+import { UserData } from "@/services/auth.server";
 
 const links = [
   {
@@ -7,12 +8,12 @@ const links = [
     name: "Home",
   },
   {
-    to: "/login",
-    name: "Login",
-  },
-  {
     to: "/explore",
     name: "Explore",
+  },
+  {
+    to: "/search",
+    name: "Search",
   },
   {
     to: "/collection",
@@ -25,15 +26,15 @@ const links = [
 ];
 
 interface NavbarProps {
-  username: string;
+  session: UserData | null;
 }
 
-export function Navbar({ username }: NavbarProps) {
+export function Navbar({ session }: NavbarProps) {
   return (
-    <nav className="flex flex-row px-6 py-4 justify-between items-center border w-full">
+    <nav className="flex w-full flex-row items-center justify-between border px-6 py-4">
       <div className="flex flex-row justify-start gap-4">
         {links.map((link) => (
-          <NavLink to={link.to}>
+          <NavLink key={link.name} to={link.to}>
             {({ isActive, isPending }) => (
               <Button variant={isActive ? "default" : "ghost"}>
                 {isPending ? "loading" : link.name}
@@ -42,12 +43,22 @@ export function Navbar({ username }: NavbarProps) {
           </NavLink>
         ))}
       </div>
-      <div className="flex flex-row items-center gap-4">
-        <p>username</p>
-        <form method="post" action="/logout">
+      {session ? (
+        <form method="post" action="/logout" className="flex flex-row items-center gap-4">
+          <Button variant={"link"}>
+            <Link to={`/profile/${session.id}`}>{session.username}</Link>
+          </Button>
           <Button variant={"secondary"}>Logout</Button>
         </form>
-      </div>
+      ) : (
+        <NavLink to="/login">
+          {({ isActive, isPending }) => (
+            <Button variant={isActive ? "default" : "ghost"}>
+              {isPending ? "loading" : "Login"}
+            </Button>
+          )}
+        </NavLink>
+      )}
     </nav>
   );
 }

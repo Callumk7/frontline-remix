@@ -16,7 +16,8 @@ import { AddPlaylistDialog } from "@/features/playlists/components/AddPlaylistDi
 import { Toggle } from "@/components/ui/toggle";
 import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import { ChevronDown } from "@/components/ui/icons/ChevronDown";
-import { PlaylistWithGames } from "@/features/playlists/types";
+import { PlaylistWithGames } from "@/features/playlists/fetching/get-playlists";
+import { useSubmit } from "@remix-run/react";
 
 interface CollectionViewMenuProps {
   userId: string;
@@ -43,6 +44,18 @@ export function CollectionViewMenu({
 }: CollectionViewMenuProps) {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
+  // Remix submit tool
+  const submit = useSubmit();
+
+  const handleBulkAddToPlaylist = (playlistId: number) => {
+    const payload = JSON.stringify(selectedGames);
+    submit(payload, {
+      method: "post",
+      action: `/playlists/${playlistId}`,
+      encType: "application/json",
+    });
+  };
+
   return (
     <div className="flex flex-row space-x-6 self-start">
       <Input
@@ -59,11 +72,13 @@ export function CollectionViewMenu({
           <MenubarContent>
             <MenubarLabel>Bulk Manage</MenubarLabel>
             <MenubarSeparator />
+
             <MenubarItem
               onClick={selectedGames.length > 0 ? handleUnselectAll : handleSelectAll}
             >
               {selectedGames.length > 0 ? "Deselect all" : "Select all"}
             </MenubarItem>
+
             <MenubarSub>
               <MenubarSubTrigger disabled={selectedGames.length === 0}>
                 <span>Add selected to Playlist..</span>
@@ -73,17 +88,20 @@ export function CollectionViewMenu({
                   <MenubarItem
                     id={String(playlist.id)}
                     key={index}
-                    onClick={() => console.log("playlist clicked or something")}
+                    onClick={() => handleBulkAddToPlaylist(playlist.id)}
                   >
                     {playlist.name}
                   </MenubarItem>
                 ))}
+
                 <MenubarSeparator />
+
                 <MenubarItem onClick={() => setDialogOpen(true)}>
                   Create Playlist..
                 </MenubarItem>
               </MenubarSubContent>
             </MenubarSub>
+
             <MenubarItem
               onClick={() => console.log("delete selected games")}
               className="focus-visible:bg-destructive/80"
@@ -94,7 +112,7 @@ export function CollectionViewMenu({
         </MenubarMenu>
       </Menubar>
       <Toggle
-        pressed={!viewIsCard}
+        pressed={viewIsCard}
         variant={"outline"}
         onPressedChange={handleToggleView}
         aria-label="view"

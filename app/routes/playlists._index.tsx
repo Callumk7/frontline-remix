@@ -1,5 +1,8 @@
 import { PlaylistCard } from "@/features/playlists/components/PlaylistCard";
-import { getUserPlaylists } from "@/features/playlists/fetching/get-playlists";
+import {
+  getAllPlaylists,
+  getUserPlaylists,
+} from "@/features/playlists/fetching/get-playlists";
 import { authenticator } from "@/services/auth.server";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
@@ -9,7 +12,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     failureRedirect: "/login",
   });
 
-  const playlists = await getUserPlaylists(session.id);
+  const playlists = await getAllPlaylists();
   return typedjson({
     session,
     playlists,

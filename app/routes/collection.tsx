@@ -1,8 +1,8 @@
 import { PlaylistSidebar } from "@/features/playlists/components/PlaylistSidebar";
 import { getUserPlaylists } from "@/features/playlists/fetching/get-playlists";
 import { authenticator } from "@/services/auth.server";
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { Outlet } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

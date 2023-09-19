@@ -16,8 +16,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PlayFill } from "@/components/ui/icons/PlayFill";
 import { PlayOutline } from "@/components/ui/icons/PlayOutline";
 import { GameFromCollectionWithPlaylists } from "@/components/games/types";
-import { PlaylistWithGames } from "@/features/playlists/types";
 import { useSubmit } from "@remix-run/react";
+import { PlaylistWithGames } from "@/features/playlists/fetching/get-playlists";
 
 interface CollectionEntryControlsProps {
   game: GameFromCollectionWithPlaylists;
@@ -45,12 +45,22 @@ export function CollectionEntryControls({
 
   const submit = useSubmit();
 
+  const handleAddToPlaylist = (playlistId: number) => {
+    const payload = JSON.stringify([game.gameId]);
+    submit(payload, {
+      method: "post",
+      action: `/playlists/${playlistId}`,
+      encType: "application/json",
+    });
+  };
+
   return (
     <div className="flex w-fit flex-row items-center justify-end gap-2 rounded-md border p-1">
       <Checkbox
         className="ml-2 mr-1"
         checked={isSelected}
         onCheckedChange={() => {
+          handleSelectedToggled(game.gameId);
           setIsSelected(!isSelected);
         }}
       />
@@ -75,14 +85,7 @@ export function CollectionEntryControls({
               <DropdownMenuCheckboxItem
                 key={index}
                 checked={game.playlists.some((pl) => pl.playlistId === playlist.id)}
-                onCheckedChange={() => {
-                  const formData = new FormData();
-                  formData.append("gameId", String(game.gameId));
-                  submit(formData, {
-                    method: "post",
-                    action: `/playlists/${playlist.id}`,
-                  });
-                }}
+                onCheckedChange={() => handleAddToPlaylist(playlist.id)}
               >
                 {playlist.name}
               </DropdownMenuCheckboxItem>

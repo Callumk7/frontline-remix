@@ -2,10 +2,7 @@ import { IGDBGameSchema } from "@/features/search/igdb";
 import { db } from "@/util/db/db.server";
 import { ActionFunctionArgs } from "@remix-run/node";
 
-export const loader = async () => {
-	return null;
-};
-
+// WARN: This file needs to be renamed and routed to a better location
 export const action = async ({ request }: ActionFunctionArgs) => {
 	const body = await request.json();
 
