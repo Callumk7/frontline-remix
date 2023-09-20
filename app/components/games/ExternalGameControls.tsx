@@ -1,14 +1,12 @@
 import { IGDBGame } from "@/features/search/igdb";
 import { Button } from "../ui/button";
-import { useFetcher, useSubmit } from "@remix-run/react";
 
 interface ExternalGameControlsProps {
   game: IGDBGame;
 }
 export function ExternalGameControls({ game }: ExternalGameControlsProps) {
-  const submit = useSubmit();
   const handleSave = () => {
-    fetch("/api/search/new", {
+    fetch("/explore", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

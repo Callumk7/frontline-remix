@@ -30,7 +30,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="bg-background text-foreground">
+      <body className="bg-background text-foreground p-0">
         <Navbar session={session} />
         <Outlet />
         <ScrollRestoration />

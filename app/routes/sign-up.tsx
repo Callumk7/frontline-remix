@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
 import { createNewUser } from "@/services/auth.server";
 import { ActionFunctionArgs } from "@remix-run/node";
+import { Link } from "@remix-run/react";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const body = await request.formData();
@@ -40,6 +41,9 @@ export default function SignUpPage() {
         required
       />
       <Button>Create Account</Button>
+      <Button asChild variant={"outline"}>
+        <Link to="/login">Already have an account?</Link>
+      </Button>
     </form>
   );
 }

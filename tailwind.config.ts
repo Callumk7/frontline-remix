@@ -4,10 +4,22 @@ export default {
 	content: ["./app/**/*.{js,jsx,ts,tsx}"],
 	theme: {
 		extend: {
+			fontFamily: {
+				cabin: ["Cabin"],
+				overpass: ["Overpass"],
+				urbanist: ["Urbanist"],
+				public: ["Public Sans"],
+			},
+			fontSize: {
+				title: ["12rem", "3rem"],
+			},
 			colors: {
 				background: {
-					DEFAULT: "hsl(var(--background))",
+					DEFAULT: "hsl(var(--background-1))",
+					"2": "hsl(var(--background-2))",
+					"3": "hsl(var(--background-3))",
 					menu: "hsl(var(--background-menu))",
+					hover: "hsl(var(--background-hover))",
 				},
 				foreground: "hsl(var(--foreground))",
 				destructive: {
@@ -34,12 +46,9 @@ export default {
 					DEFAULT: "hsl(var(--accent))",
 					foreground: "hsl(var(--accent-foreground))",
 				},
-				midnight: {
-					1: "hsl(var(--midnight-1))",
-					2: "hsl(var(--midnight-2))",
-					3: "hsl(var(--midnight-3))",
-					4: "hsl(var(--midnight-4))",
-					5: "hsl(var(--midnight-5))",
+				muted: {
+					DEFAULT: "hsl(var(--muted))",
+					foreground: "hsl(var(--muted-foreground))",
 				},
 				ring: "hsl(var(--ring))",
 				input: "hsl(var(--input))",

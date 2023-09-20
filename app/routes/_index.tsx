@@ -1,4 +1,4 @@
-import { GameCardCover } from "@/components/games/GameCard";
+import { GameCardCoverPopular } from "@/components/games/GameCard";
 import { GameListEntry } from "@/components/games/GameList";
 import { GameViewCard, GameViewList } from "@/components/games/GameView";
 import {
@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import { Toggle } from "@/components/ui/toggle";
+import { getPopularGames } from "@/features/explore/fetches";
 import { useView } from "@/hooks/view";
 import { authenticator } from "@/services/auth.server";
 import { db } from "@/util/db/db.server";
@@ -31,13 +32,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const games = await db.game.findMany({
-    include: gameFromCollectionInclude,
-  });
-
   const session = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
+
+  const games = await getPopularGames(10);
 
   return typedjson({ games, session });
 };
@@ -60,9 +59,9 @@ export default function Index() {
       {isViewCard ? (
         <GameViewCard>
           {games.map((game) => (
-            <GameCardCover key={game.id} game={game} isSelected={false}>
+            <GameCardCoverPopular key={game.id} game={game} isSelected={false}>
               <HomeControlComponent game={game} userId={session.id} />
-            </GameCardCover>
+            </GameCardCoverPopular>
           ))}
         </GameViewCard>
       ) : (
@@ -88,7 +87,7 @@ function HomeControlComponent({
   const fetcher = useFetcher();
   return (
     <div className="flex flex-row justify-between">
-      <fetcher.Form method="post" action="/collection/add">
+      <fetcher.Form method="post" action="/collection">
         <input type="hidden" name="userId" value={userId} />
         <input type="hidden" name="gameId" value={game.gameId} />
         <Button type="submit" variant={"secondary"}>
