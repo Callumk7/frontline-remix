@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Cabin:wght@400;600;700&family=Overpass:wght@300;400;600;700&family=Public+Sans:wght@300;400;600;700;900&family=Urbanist:wght@300;400;600;700;900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,6 +8,7 @@
 	:root {
 		--background: 209 17% 95%;
 		--foreground: 240 17% 10%;
+		--foreground-muted: 240 17% 17%;
 
 		--primary: 63 91% 65%; /* yellow */
 		--primary-foreground: 240 17% 10%;
@@ -28,24 +31,40 @@
 		--accent: 65 5% 96%;
 		--accent-foreground: 240 6% 10%;
 
+		--muted: 65 5% 96%;
+		--muted-foreground: 240 6% 10%;
+
 		--background-menu: 209 17% 93%;
+		--background-hover: 209 17% 91%;
 	}
 
 	@media (prefers-color-scheme: dark) {
 		:root {
-			--background: 240 17% 4%;
-			--foreground: 65 17% 92%;
+			--background-1: 65 9% 8%;
+			--background-2: 65 9% 9%;
+			--background-3: 65 9% 10%;
+
+			--foreground: 65 7% 85%;
+			--foreground-muted: 65 6% 67%;
 
 			--ring: 220 5% 84%;
 
-			--accent: 240 5% 15%;
+			--accent: 65 5% 15%;
 			--accent-foreground: 0 0% 98%;
 
-			--background-menu: 240 17% 5%;
+			--muted: 65 5% 15%;
+			--muted-foreground: 0 0% 98%;
+
+			--background-menu: 65 9% 10%;
+			--background-hover: 65 9% 12%;
 		}
 	}
 
 	* {
 		@apply border-foreground/10;
+	}
+
+	.toast {
+		background: var(--background);
 	}
 }

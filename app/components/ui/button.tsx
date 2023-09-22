@@ -15,7 +15,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         "ghost-destructive": "hover:bg-destructive hover:text-destructive-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        muted: "text-foreground bg-background-90/80 hover:bg-background-90",
+        muted: "text-foreground bg-muted hover:bg-background-90",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -24,6 +24,7 @@ const buttonVariants = cva(
         lg: "h-11 rounded-md px-8",
         icon: "h-8 w-8",
         link: "px-2 py-1",
+        bubble: "text-[11px] py-1 px-2 rounded-full",
       },
     },
     defaultVariants: {

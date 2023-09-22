@@ -1,11 +1,11 @@
 import { redis } from "./redis.server";
 
 export async function cacheFetch<T, A>(
-	fetchArg: A,
+	queryArg: A,
 	fetchKey: string[],
 	fetchFunc: (userId: A) => Promise<T>,
 ): Promise<T> {
-	const key = [fetchKey.join(":"), fetchArg].join(":").toString();
+	const key = [queryArg, fetchKey.join(":")].join(":").toString();
 
 	const cached = await redis.get(key);
 
@@ -16,7 +16,7 @@ export async function cacheFetch<T, A>(
 		console.log(`Cache MISS for ${key}`);
 	}
 
-	const fetchedData = await fetchFunc(fetchArg);
+	const fetchedData = await fetchFunc(queryArg);
 
 	// This is cached for 1 hour
 	await redis.set(key, JSON.stringify(fetchedData), "EX", 60 * 60);

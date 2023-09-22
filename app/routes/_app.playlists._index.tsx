@@ -2,7 +2,7 @@ import { PlaylistCard } from "@/features/playlists/components/PlaylistCard";
 import {
   getAllPlaylists,
   getUserPlaylists,
-} from "@/features/playlists/fetching/get-playlists";
+} from "@/features/playlists/queries/get-playlists";
 import { authenticator } from "@/services/auth.server";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";

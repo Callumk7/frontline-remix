@@ -1,7 +1,8 @@
 import { db } from "@/util/db/db.server";
 import { Prisma } from "@prisma/client";
 
-export async function getUserPlaylists(userId: string) {
+/** Returns all playlists and their games, with covers */
+export async function getUserPlaylists(userId: string): Promise<PlaylistWithGames[]> {
 	const getPlaylists = await db.playlist.findMany({
 		where: {
 			userId,

@@ -16,8 +16,7 @@ import {
 } from "@/components/ui/dropdown";
 import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import { Link } from "@remix-run/react";
-import { PlaylistWithGames } from "../fetching/get-playlists";
-
+import { PlaylistWithGames } from "../queries/get-playlists";
 interface PlaylistSidebarProps {
   userId: string;
   playlists: PlaylistWithGames[];
@@ -34,7 +33,7 @@ export function PlaylistSidebar({
 
   return (
     <>
-      <div className="mb-5 flex h-full min-h-[80vh] w-1/4 min-w-[256px] flex-col gap-2 justify-self-start rounded-lg border px-3 animate-in">
+      <div className="mb-5 flex h-full min-h-screen w-1/4 min-w-[256px] flex-col gap-2 justify-self-start border-b border-l border-r px-3">
         <Button
           onClick={() => setDialogOpen(true)}
           className="mx-4 my-6"
@@ -71,6 +70,7 @@ export function PlaylistSidebar({
           </CollapsibleContent>
         </Collapsible>
       </div>
+
       <AddPlaylistDialog
         userId={userId}
         dialogOpen={dialogOpen}
@@ -89,14 +89,12 @@ function PlaylistEntry({ playlist, userId }: PlaylistEntryProps) {
   return (
     <Link
       to={`/playlists/${playlist.id}`}
-      className="relative m-1 mb-2 flex flex-col place-items-start justify-start rounded-md p-1 hover:bg-background-90"
+      className="relative m-1 mb-2 flex flex-col place-items-start justify-start rounded-md p-1 hover:bg-background-hover"
     >
       <div className="px-2 py-1 text-sm font-medium text-foreground">{playlist.name}</div>
       <div className="inset-3 flex flex-row space-x-4">
         <p className="px-2 text-xs  text-foreground/60">{playlist.user.username}</p>
-        <p className=" text-xs  text-foreground/60">
-          {playlist.games ? playlist.games.length : 0}
-        </p>
+        <p className=" text-xs  text-foreground/60">{playlist.games.length}</p>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

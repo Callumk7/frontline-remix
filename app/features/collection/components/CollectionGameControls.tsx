@@ -45,6 +45,7 @@ export function CollectionEntryControls({
 
   const submit = useSubmit();
 
+  // FIX: Handle invalidating the cache
   const handleAddToPlaylist = (playlistId: number) => {
     const payload = JSON.stringify([game.gameId]);
     submit(payload, {
@@ -55,7 +56,7 @@ export function CollectionEntryControls({
   };
 
   return (
-    <div className="flex w-fit flex-row items-center justify-end gap-2 rounded-md border p-1">
+    <div className="flex w-fit flex-row items-center justify-end gap-2 rounded-md border bg-background-3 p-1">
       <Checkbox
         className="ml-2 mr-1"
         checked={isSelected}

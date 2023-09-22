@@ -31,7 +31,7 @@ interface NavbarProps {
 
 export function Navbar({ session }: NavbarProps) {
   return (
-    <nav className="flex w-full flex-row items-center justify-between border px-6 py-4">
+    <nav className="fixed top-0 z-50 flex w-full flex-row items-center justify-between border bg-background/80 px-6 py-4 backdrop-blur">
       <div className="flex flex-row justify-start gap-4">
         {links.map((link) => (
           <NavLink key={link.name} to={link.to}>
@@ -46,7 +46,7 @@ export function Navbar({ session }: NavbarProps) {
       {session ? (
         <form method="post" action="/logout" className="flex flex-row items-center gap-4">
           <Button variant={"link"}>
-            <Link to={`/profile/${session.id}`}>{session.username}</Link>
+            <Link to={`/profile/`}>{session.username}</Link>
           </Button>
           <Button variant={"secondary"}>Logout</Button>
         </form>

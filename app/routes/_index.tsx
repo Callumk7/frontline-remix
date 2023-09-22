@@ -1,4 +1,4 @@
-import { GameCardCover } from "@/components/games/GameCard";
+import { GameCardCoverPopular } from "@/components/games/GameCard";
 import { GameListEntry } from "@/components/games/GameList";
 import { GameViewCard, GameViewList } from "@/components/games/GameView";
 import {
@@ -8,15 +8,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import { Toggle } from "@/components/ui/toggle";
+import { getPopularGames } from "@/features/explore/queries";
 import { useView } from "@/hooks/view";
 import { authenticator } from "@/services/auth.server";
 import { db } from "@/util/db/db.server";
+import { getCollectionGameIds } from "@/util/queries/get-collection-ids";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   type MetaFunction,
 } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 
 export const meta: MetaFunction = () => {
@@ -31,19 +34,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const games = await db.game.findMany({
-    include: gameFromCollectionInclude,
-  });
-
   const session = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
 
-  return typedjson({ games, session });
+  const games = await getPopularGames(10);
+
+  let gameIds: number[] = [];
+  if (session) {
+    gameIds = await getCollectionGameIds(session.id);
+  }
+
+  return typedjson({ games, gameIds, session });
 };
 
 export default function Index() {
-  const { games, session } = useTypedLoaderData<typeof loader>();
+  const { games, gameIds, session } = useTypedLoaderData<typeof loader>();
   const { isViewCard, handleToggleView } = useView();
 
   return (
@@ -60,9 +66,13 @@ export default function Index() {
       {isViewCard ? (
         <GameViewCard>
           {games.map((game) => (
-            <GameCardCover key={game.id} game={game} isSelected={false}>
-              <HomeControlComponent game={game} userId={session.id} />
-            </GameCardCover>
+            <GameCardCoverPopular key={game.id} game={game} isSelected={false}>
+              <HomeControlComponent
+                game={game}
+                inCollection={gameIds.includes(game.gameId)}
+                userId={session.id}
+              />
+            </GameCardCoverPopular>
           ))}
         </GameViewCard>
       ) : (
@@ -80,22 +90,40 @@ export default function Index() {
 
 function HomeControlComponent({
   game,
+  inCollection,
   userId,
 }: {
   game: GameFromCollectionWithPlaylists;
+  inCollection: boolean;
   userId: string;
 }) {
+  const [isInCollection, setIsInCollection] = useState<boolean>(inCollection);
   const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (fetcher.data) {
+      setIsInCollection(true);
+    }
+  }, [setIsInCollection, fetcher]);
   return (
     <div className="flex flex-row justify-between">
-      <fetcher.Form method="post" action="/collection/add">
-        <input type="hidden" name="userId" value={userId} />
-        <input type="hidden" name="gameId" value={game.gameId} />
-        <Button type="submit" variant={"secondary"}>
-          Save to Collection
+      {isInCollection ? (
+        <Button
+          className="animate-in slide-in-from-bottom-3"
+          variant={"outline"}
+          size={"bubble"}
+        >
+          In your collection
         </Button>
-      </fetcher.Form>
-      {fetcher.state}
+      ) : (
+        <fetcher.Form method="post" action="/collection">
+          <input type="hidden" name="userId" value={userId} />
+          <input type="hidden" name="gameId" value={game.gameId} />
+          <Button type="submit" variant={"secondary"}>
+            {fetcher.state === "submitting" ? "saving..." : "save game"}
+          </Button>
+        </fetcher.Form>
+      )}
     </div>
   );
 }

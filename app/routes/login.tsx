@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
 import { authenticator } from "@/services/auth.server";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { Link } from "@remix-run/react";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   return await authenticator.authenticate("user-pass", request, {
@@ -20,16 +21,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 // TODO: add client and server side validation
 export default function LoginPage() {
   return (
-    <form className="flex flex-col gap-5 w-80 mx-auto mt-10" method="post">
+    <form className="mx-auto mt-10 flex w-80 flex-col gap-5" method="post">
       <Input
-        className="bg-background border"
+        className="border bg-background"
         type="email"
         name="email"
         placeholder="Enter your email"
         required
       />
       <Input
-        className="bg-background border"
+        className="border bg-background"
         type="password"
         name="password"
         autoComplete="current-password"
@@ -37,6 +38,9 @@ export default function LoginPage() {
         required
       />
       <Button>Sign In</Button>
+      <Button asChild variant={"outline"}>
+        <Link to="/sign-up">Need an account?</Link>
+      </Button>
     </form>
   );
 }
