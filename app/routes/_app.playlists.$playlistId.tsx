@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import { Toggle } from "@/components/ui/toggle";
 import { CommentType, CommentView } from "@/features/comments/components/CommentView";
-import { getGamesFromPlaylist } from "@/features/playlists/fetching/get-playlist-games";
-import { getPlaylistDetails } from "@/features/playlists/fetching/get-playlists";
+import { getGamesFromPlaylist } from "@/features/playlists/queries/get-playlist-games";
+import { getPlaylistDetails } from "@/features/playlists/queries/get-playlists";
 import { useView } from "@/hooks/view";
 import { authenticator } from "@/services/auth.server";
 import { db } from "@/util/db/db.server";
@@ -149,7 +149,7 @@ export default function PlaylistView() {
   return (
     <div>
       <div className="flex w-full flex-col gap-7 px-6 py-8">
-        <h1 className="text-title font-cabin font-black leading-none text-foreground">
+        <h1 className="font-cabin text-title font-black leading-none text-foreground">
           {playlist?.name}
         </h1>
         <h1>
@@ -161,17 +161,16 @@ export default function PlaylistView() {
         {isOwner ? (
           <div>nice</div>
         ) : (
-          <div className="flex flex-row gap-2">
-            <fetcher.Form method="post" action="/playlists/follow">
+          <div className="flex flex-row gap-5">
+            <fetcher.Form method="post" action="/playlists/following">
+              <input type="hidden" name="userId" value={session.id} />
+              <input type="hidden" name="playlistId" value={playlist?.id} />
               <Button size={"sm"} variant={"secondary"}>
                 Follow
               </Button>
             </fetcher.Form>
             <Button size={"sm"} variant={"secondary"}>
-              Message
-            </Button>
-            <Button size={"sm"} variant={"secondary"}>
-              Kudos
+              Rate Playlist
             </Button>
           </div>
         )}

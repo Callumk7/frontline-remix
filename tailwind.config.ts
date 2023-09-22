@@ -21,7 +21,10 @@ export default {
 					menu: "hsl(var(--background-menu))",
 					hover: "hsl(var(--background-hover))",
 				},
-				foreground: "hsl(var(--foreground))",
+				foreground: {
+					DEFAULT: "hsl(var(--foreground))",
+					muted: "hsl(var(--foreground-muted))",
+				},
 				destructive: {
 					DEFAULT: "hsl(var(--destructive))",
 					foreground: "hsl(var(--destructive-foreground))",

@@ -16,8 +16,7 @@ import {
 } from "@/components/ui/dropdown";
 import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import { Link } from "@remix-run/react";
-import { PlaylistWithGames } from "../fetching/get-playlists";
-import { motion } from "framer-motion";
+import { PlaylistWithGames } from "../queries/get-playlists";
 interface PlaylistSidebarProps {
   userId: string;
   playlists: PlaylistWithGames[];
@@ -34,7 +33,7 @@ export function PlaylistSidebar({
 
   return (
     <>
-      <div className="mb-5 flex h-full min-h-[80vh] w-1/4 min-w-[256px] flex-col gap-2 justify-self-start border-l border-r border-b px-3">
+      <div className="mb-5 flex h-full min-h-screen w-1/4 min-w-[256px] flex-col gap-2 justify-self-start border-b border-l border-r px-3">
         <Button
           onClick={() => setDialogOpen(true)}
           className="mx-4 my-6"

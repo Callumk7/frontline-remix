@@ -1,13 +1,15 @@
-import { IGDBGameSchema } from "@/features/search/igdb";
+import { IGDBGame } from "@/features/search/igdb";
 import { db } from "@/util/db/db.server";
-import { ActionFunctionArgs } from "@remix-run/node";
 
-// WARN: This file needs to be renamed and routed to a better location
-export const action = async ({ request }: ActionFunctionArgs) => {
-	const body = await request.json();
+const createPrismaArgs = (game: IGDBGame) => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const args: any = {};
+	args.gameId = game.id
 
+}
+
+export async function saveExternalGameToDB(game: IGDBGame) {
 	try {
-		const game = IGDBGameSchema.parse(body);
 		const postGameToDatabase = await db.game.upsert({
 			where: {
 				gameId: game.id,
@@ -143,7 +145,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 		}
 
 		return game;
+
 	} catch (err) {
-		console.error("Error handling game submission", err);
+		throw new Error("Error during prisma run, unable to save game");
 	}
-};
+}

@@ -8,6 +8,7 @@
 	:root {
 		--background: 209 17% 95%;
 		--foreground: 240 17% 10%;
+		--foreground-muted: 240 17% 17%;
 
 		--primary: 63 91% 65%; /* yellow */
 		--primary-foreground: 240 17% 10%;
@@ -44,6 +45,7 @@
 			--background-3: 65 9% 10%;
 
 			--foreground: 65 7% 85%;
+			--foreground-muted: 65 6% 67%;
 
 			--ring: 220 5% 84%;
 
@@ -60,5 +62,9 @@
 
 	* {
 		@apply border-foreground/10;
+	}
+
+	.toast {
+		background: var(--background);
 	}
 }

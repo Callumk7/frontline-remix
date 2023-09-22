@@ -10,6 +10,7 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import { Navbar } from "./components/navigation/Navbar";
+import { Toaster } from "sonner";
 import { authenticator } from "./services/auth.server";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -30,12 +31,19 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="bg-background text-foreground p-0">
-        <Navbar session={session} />
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
+      <body className="bg-background p-0 text-foreground">
+        <div className="relative top-16">
+          <Navbar session={session} />
+          <Outlet />
+          <Toaster
+            toastOptions={{
+              className: "toast",
+            }}
+          />
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </div>
       </body>
     </html>
   );

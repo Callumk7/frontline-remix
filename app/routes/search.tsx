@@ -2,6 +2,7 @@ import { ExternalGameCardCover } from "@/components/games/ExternalGameCard";
 import { ExternalGameControls } from "@/components/games/ExternalGameControls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
+import { Header } from "@/components/ui/styled/header";
 import { getSearchResults } from "@/features/search/igdb";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
@@ -24,6 +25,7 @@ export default function SearchPage() {
   const data = useLoaderData<typeof loader>();
   return (
     <div className="relative top-16 mt-10 px-10">
+      <Header>Find more games</Header>
       <form className="mx-auto mb-6 flex w-96 flex-row gap-2" method="get">
         <Input type="text" name="q" placeholder="Search for games" />
         <Button>search</Button>

@@ -23,10 +23,6 @@ const links = [
     to: "/playlists",
     name: "Playlists",
   },
-  {
-    to: "/example",
-    name: "Example",
-  },
 ];
 
 interface NavbarProps {
@@ -50,7 +46,7 @@ export function Navbar({ session }: NavbarProps) {
       {session ? (
         <form method="post" action="/logout" className="flex flex-row items-center gap-4">
           <Button variant={"link"}>
-            <Link to={`/profile/${session.id}`}>{session.username}</Link>
+            <Link to={`/profile/`}>{session.username}</Link>
           </Button>
           <Button variant={"secondary"}>Logout</Button>
         </form>

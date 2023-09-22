@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { GameWithCoverAndGenres, IGDBImage } from "./types";
 import { AnimatePresence, motion } from "framer-motion";
-import { PopularGame } from "@/features/explore/fetches";
+import { PopularGame } from "@/features/explore/queries";
 
 interface CardProps {
   isSelected: boolean;

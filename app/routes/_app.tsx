@@ -1,5 +1,6 @@
 import { PlaylistSidebar } from "@/features/playlists/components/PlaylistSidebar";
-import { getUserPlaylists } from "@/features/playlists/fetching/get-playlists";
+import { getFollowedPlaylists } from "@/features/playlists/queries/following/follow-playlist";
+import { getUserPlaylists } from "@/features/playlists/queries/get-playlists";
 import { authenticator } from "@/services/auth.server";
 import { cacheFetch } from "@/util/redis/cache-fetch";
 import { LoaderFunctionArgs } from "@remix-run/node";
@@ -16,9 +17,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     ["playlists", "games"],
     getUserPlaylists,
   );
+
+  const followedPlaylists = await getFollowedPlaylists(session.id)
   return typedjson({
     session,
     playlists,
+    followedPlaylists,
   });
 };
 
@@ -26,15 +30,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 // for the collection route and the playlist route.
 
 export default function AppLayout() {
-  const { session, playlists } = useTypedLoaderData<typeof loader>();
+  const { session, playlists, followedPlaylists } = useTypedLoaderData<typeof loader>();
 
   return (
-    <div className="relative top-16 flex w-full flex-row justify-start gap-4">
+    <div className="flex w-full flex-row justify-start gap-4">
       <div className="hidden md:block">
         <PlaylistSidebar
           playlists={playlists}
           userId={session.id}
-          followedPlaylists={playlists}
+          followedPlaylists={followedPlaylists}
         />
       </div>
       <div className="mt-10 w-full self-stretch">

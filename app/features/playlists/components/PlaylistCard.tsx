@@ -1,7 +1,8 @@
 import { Link } from "@remix-run/react";
 import { IGDBImage } from "@/components/games/types";
-import { PlaylistWithGames } from "../fetching/get-playlists";
 import { Button } from "@/components/ui/button";
+import { PlaylistWithGames } from "../queries/get-playlists";
+import { UserLink } from "@/features/profile/components/UserLink";
 
 interface PlaylistCardProps {
   playlist: PlaylistWithGames;
@@ -10,7 +11,10 @@ interface PlaylistCardProps {
 export function PlaylistCard({ playlist }: PlaylistCardProps) {
   const size: IGDBImage = "cover_big";
   return (
-    <Link to={`/playlists/${playlist.id}`} className="w-full rounded-md bg-slate-900">
+    <Link
+      to={`/playlists/${playlist.id}`}
+      className="h-80 w-full rounded-md bg-background-3"
+    >
       <div className="relative bottom-10 left-5 grid w-[136px] grid-cols-2 overflow-hidden rounded-md shadow-md">
         {playlist.games.slice(0, 4).map((game) => (
           <img
@@ -22,12 +26,10 @@ export function PlaylistCard({ playlist }: PlaylistCardProps) {
           />
         ))}
       </div>
-      <h1 className="px-3 py-2 font-poppins font-semibold">{playlist.name}</h1>
-      <div className="text-foreground/80 text-sm flex flex-row items-end gap-3 px-3 py-2">
+      <h1 className="px-3 py-2 font-semibold">{playlist.name}</h1>
+      <div className="flex flex-row items-end gap-3 px-3 py-2 text-sm text-foreground/80">
         <span className="py-1">Created by</span>
-        <Button size={"link"} variant={"link"}>
-          {playlist.user.username}
-        </Button>
+        <UserLink username={playlist.user.username} userId={playlist.userId} />
       </div>
     </Link>
   );
