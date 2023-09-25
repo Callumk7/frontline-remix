@@ -4,11 +4,11 @@ import { GameViewCard, GameViewList } from "@/components/games/GameView";
 import { ProfileLink } from "@/components/navigation/ProfileLink";
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "@/components/ui/icons/MenuIcon";
-import { Switch } from "@/components/ui/switch";
 import { Toggle } from "@/components/ui/toggle";
 import { CommentForm } from "@/features/comments/components/CommentForm";
-import {  CommentView } from "@/features/comments/components/CommentView";
+import { CommentView } from "@/features/comments/components/CommentView";
 import { getPlaylistComments } from "@/features/comments/queries";
+import { PlaylistControls } from "@/features/playlists/components/PlaylistGameControls";
 import { getGamesFromPlaylist } from "@/features/playlists/queries/get-playlist-games";
 import { getPlaylistDetails } from "@/features/playlists/queries/get-playlists";
 import { useView } from "@/hooks/view";
@@ -17,7 +17,7 @@ import { db } from "@/util/db/db.server";
 import { cacheFetch } from "@/util/redis/cache-fetch";
 import { invalidateCache } from "@/util/redis/invalidate-cache";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { Form, useFetcher } from "@remix-run/react";
+import { Form, Link, Outlet, useFetcher, useLocation } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import invariant from "tiny-invariant";
 
@@ -94,25 +94,31 @@ export default function PlaylistView() {
     useTypedLoaderData<typeof loader>();
 
   const isOwner = playlist?.userId === session.id;
-
   const fetcher = useFetcher();
-
+  const location = useLocation();
   const { isViewCard, handleToggleView } = useView();
 
-  // TODO: fix the types here, make sure that the type for the shared game view is the lowest common denominator
   return (
     <div>
       <div className="flex w-full flex-col gap-7 px-6 py-8">
-        <h1 className="font-cabin text-title font-black leading-none text-foreground">
+        <h1 className="font-cabin text-6xl font-black leading-none text-foreground">
           {playlist?.name}
         </h1>
         <h1>
-          <span className="mr-3 text-bold">Made by:</span>
+          <span className="text-bold mr-3">Made by:</span>
           <ProfileLink userId={playlist!.userId} username={playlist!.user.username} />
-          
         </h1>
         {isOwner ? (
           <div className="flex flex-row gap-5">
+            {location.pathname.includes("/add") ? (
+              <Button asChild size={"sm"} variant={"secondary"}>
+                <Link to={`/playlists/${playlistId}`}>Close Menu</Link>
+              </Button>
+            ) : (
+              <Button asChild size={"sm"}>
+                <Link to={`/playlists/${playlistId}/add`}>Add Games..</Link>
+              </Button>
+            )}
             <Form method="delete" action="/playlists/">
               <input type="hidden" name="userId" value={session.id} />
               <input type="hidden" name="playlistId" value={playlist?.id} />
@@ -136,6 +142,7 @@ export default function PlaylistView() {
           </div>
         )}
       </div>
+      <Outlet />
       <Toggle
         className="my-6"
         pressed={isViewCard}
@@ -149,7 +156,7 @@ export default function PlaylistView() {
         <GameViewCard>
           {games.map((game) => (
             <GameCardCover key={game.id} game={game} isSelected={false}>
-              <PlaylistControls />
+              <PlaylistControls game={game} />
             </GameCardCover>
           ))}
         </GameViewCard>
@@ -157,21 +164,13 @@ export default function PlaylistView() {
         <GameViewList>
           {games.map((game) => (
             <GameListEntry key={game.id} game={game}>
-              <PlaylistControls />
+              <PlaylistControls game={game} />
             </GameListEntry>
           ))}
         </GameViewList>
       )}
       <CommentView comments={comments} />
       <CommentForm playlistId={playlistId} userId={session.id} />
-    </div>
-  );
-}
-
-function PlaylistControls({ game }) {
-  return (
-    <div className="flex w-fit flex-row items-center justify-end gap-2 rounded-md border bg-background-3 p-1">
-      <Switch />
     </div>
   );
 }

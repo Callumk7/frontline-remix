@@ -12,11 +12,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     failureRedirect: "/login",
   });
 
-  const playlists = await cacheFetch(
-    session.id,
-    ["playlists", "games"],
-    getUserPlaylists,
-  );
+  const playlists = await getUserPlaylists(session.id)
 
   const followedPlaylists = await getFollowedPlaylists(session.id)
   return typedjson({

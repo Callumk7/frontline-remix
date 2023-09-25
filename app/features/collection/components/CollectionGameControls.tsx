@@ -24,6 +24,7 @@ import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 
 interface CollectionEntryControlsProps {
+  userId: string;
   game: GameFromCollection;
   playlists: PlaylistWithGames[];
   selectedGames: number[];
@@ -31,6 +32,7 @@ interface CollectionEntryControlsProps {
 }
 
 export function CollectionEntryControls({
+  userId,
   game,
   playlists,
   selectedGames,
@@ -135,6 +137,19 @@ export function CollectionEntryControls({
     setIsStarred(!isStarred);
   };
 
+  const handleDelete = () => {
+    fetcher.submit(
+      {
+        userId: userId,
+      },
+      {
+        method: "delete",
+        action: `/collection/${game.gameId}`,
+      },
+    );
+  };
+
+
   return (
     <div className="flex w-fit flex-row items-center justify-end gap-2 rounded-md border bg-background-3 p-1">
       <Checkbox
@@ -145,76 +160,28 @@ export function CollectionEntryControls({
           setIsSelected(!isSelected);
         }}
       />
+
       <Button variant={"ghost"} size={"icon"} onClick={handleTogglePlayed}>
         {isPlayed ? <PlayFill className="text-primary" /> : <PlayOutline />}
       </Button>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant={"ghost"} size={"icon"}>
-            <Add />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>Add to playlist</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {playlists.map((playlist, index) => {
-            return (
-              <DropdownMenuCheckboxItem
-                key={index}
-                checked={game.playlists.some((pl) => pl.playlistId === playlist.id)}
-                onCheckedChange={() => handleAddToPlaylist(playlist.id)}
-              >
-                {playlist.name}
-              </DropdownMenuCheckboxItem>
-            );
-          })}
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant={"ghost"} size={"icon"}>
-            <MenuIcon />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>Manage Game</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="focus:bg-destructive/80"
-            onClick={() => console.log("delete pressed")}
-          >
-            <DeleteIcon className="mr-2 h-4 w-4" />
-            <span>Delete from collection</span>
-          </DropdownMenuItem>
-          <DropdownMenuCheckboxItem
-            checked={isSelected}
-            onCheckedChange={() => {
-              handleSelectedToggled(game.gameId);
-              setIsSelected(!isSelected);
-            }}
-          >
-            Select game..
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            checked={isPlayed}
-            onCheckedChange={handleTogglePlayed}
-          >
-            Played
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            checked={isCompleted}
-            onCheckedChange={handleToggleCompleted}
-          >
-            Completed
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            checked={isStarred}
-            onCheckedChange={handleToggleStarred}
-          >
-            Starred
-          </DropdownMenuCheckboxItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+
+      <AddToPlaylistDropdown
+        playlists={playlists}
+        game={game}
+        handleAddToPlaylist={handleAddToPlaylist}
+      />
+
+      <CollectionDropdownMenu
+        gameId={game.gameId}
+        userId={userId}
+        isPlayed={isPlayed}
+        isCompleted={isCompleted}
+        isStarred={isStarred}
+        handleToggleStarred={handleToggleStarred}
+        handleTogglePlayed={handleTogglePlayed}
+        handleToggleCompleted={handleToggleCompleted}
+        handleDelete={handleDelete}
+      />
 
       <Popover>
         <PopoverTrigger>
@@ -228,5 +195,103 @@ export function CollectionEntryControls({
         </PopoverContent>
       </Popover>
     </div>
+  );
+}
+
+interface AddToPlaylistDropdownProps {
+  playlists: PlaylistWithGames[];
+  game: GameFromCollection;
+  handleAddToPlaylist: (PlaylistId: number) => void;
+}
+
+function AddToPlaylistDropdown({
+  playlists,
+  game,
+  handleAddToPlaylist,
+}: AddToPlaylistDropdownProps) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant={"ghost"} size={"icon"}>
+          <Add />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuLabel>Add to playlist</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {playlists.map((playlist, index) => {
+          return (
+            <DropdownMenuCheckboxItem
+              key={index}
+              checked={game.playlists.some((pl) => pl.playlistId === playlist.id)}
+              onCheckedChange={() => handleAddToPlaylist(playlist.id)}
+            >
+              {playlist.name}
+            </DropdownMenuCheckboxItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+interface CollectionDropdownMenuProps {
+  gameId: number;
+  userId: string;
+  isPlayed: boolean;
+  handleTogglePlayed: () => void;
+  isCompleted: boolean;
+  handleToggleCompleted: () => void;
+  isStarred: boolean;
+  handleToggleStarred: () => void;
+  handleDelete: () => void;
+}
+
+function CollectionDropdownMenu({
+  isPlayed,
+  handleTogglePlayed,
+  isCompleted,
+  handleToggleCompleted,
+  isStarred,
+  handleToggleStarred,
+  handleDelete
+}: CollectionDropdownMenuProps) {
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant={"ghost"} size={"icon"}>
+          <MenuIcon />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuLabel>Manage Game</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="focus:bg-destructive/80"
+          onClick={handleDelete}
+        >
+          <DeleteIcon className="mr-2 h-4 w-4" />
+          <span>Delete from collection</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>Game Status</DropdownMenuLabel>
+        <DropdownMenuCheckboxItem checked={isPlayed} onCheckedChange={handleTogglePlayed}>
+          Played
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem
+          checked={isCompleted}
+          onCheckedChange={handleToggleCompleted}
+        >
+          Completed
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem
+          checked={isStarred}
+          onCheckedChange={handleToggleStarred}
+        >
+          Starred
+        </DropdownMenuCheckboxItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

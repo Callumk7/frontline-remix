@@ -7,7 +7,6 @@ import { CollectionViewMenu } from "@/features/collection/components/CollectionV
 import { GenreFilter } from "@/features/collection/components/GenreFilter";
 import { getUserCollection } from "@/features/collection/queries/get-collection";
 import { getUserGenres } from "@/features/collection/queries/get-genres";
-import { useFilter } from "@/features/collection/hooks/filtering";
 import { useSelectGames } from "@/features/collection/hooks/select";
 import { SortOption, useSort } from "@/features/collection/hooks/sorting";
 import { getUserPlaylists } from "@/features/playlists/queries/get-playlists";
@@ -16,10 +15,12 @@ import { authenticator } from "@/services/auth.server";
 import { db } from "@/util/db/db.server";
 import { cacheFetch } from "@/util/redis/cache-fetch";
 import { invalidateCache } from "@/util/redis/invalidate-cache";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import invariant from "tiny-invariant";
 import { GameViewFilter } from "@/components/games/GameViewFilter";
+import { useSearch } from "@/features/collection/hooks/search";
+import { useFilter } from "@/features/collection/hooks/filter";
 
 // NOTE: -------------------------------
 // I SHOULD try and co-locate the actions (for adding and removing stuff),
@@ -36,7 +37,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = body.get("userId");
 
   if (!userId) {
-    return new Response("not logged in, missing user id", { status: 401 });
+    return json("not logged in, missing user id", { status: 401 });
   }
 
   // TODO: decide how to handle responses vs. errors
@@ -58,11 +59,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       await invalidateCache(userId.toString(), ["collection"]);
     }
 
-    // FIX: make this a json function helper 
     const resBody = JSON.stringify(createCollection);
-    return new Response(resBody, { status: 200 });
+    return json(resBody, { status: 200 });
   } catch (err) {
-    return new Response("Game already in collection", {
+    return json("Game already in collection", {
       status: 409,
       statusText: "Conflict",
     });
@@ -91,14 +91,24 @@ export default function CollectionView() {
   const { isViewCard, handleToggleView } = useView();
 
   // filter controls
+  const { searchTerm, searchedGames, handleSearchTermChanged } = useSearch(games);
+
   const {
-    searchTerm,
     genreFilter,
-    filteredGames,
-    handleSearchTermChanged,
     handleGenreToggled,
     handleToggleAllGenres,
-  } = useFilter(games, genres);
+    filteredGames,
+    filterOnPlayed,
+    filterOnCompleted,
+    filterOnStarred,
+    filterOnRated,
+    filterOnUnrated,
+    handleToggleFilterOnPlayed,
+    handleToggleFilterOnCompleted,
+    handleToggleFilterOnStarred,
+    handleToggleFilterOnRated,
+    handleToggleFilterOnUnrated,
+  } = useFilter(searchedGames, genres);
 
   // sorting options
   const { sortOption, setSortOption, sortedGames } = useSort(
@@ -131,13 +141,25 @@ export default function CollectionView() {
           handleToggleView={handleToggleView}
         />
         <GameViewSort sortOption={sortOption} setSortOption={setSortOption} />
-        <GameViewFilter />
+        <GameViewFilter
+          filterOnPlayed={filterOnPlayed}
+          filterOnCompleted={filterOnCompleted}
+          filterOnStarred={filterOnStarred}
+          filterOnRated={filterOnRated}
+          filterOnUnrated={filterOnUnrated}
+          handleToggleFilterOnPlayed={handleToggleFilterOnPlayed}
+          handleToggleFilterOnCompleted={handleToggleFilterOnCompleted}
+          handleToggleFilterOnStarred={handleToggleFilterOnStarred}
+          handleToggleFilterOnRated={handleToggleFilterOnRated}
+          handleToggleFilterOnUnrated={handleToggleFilterOnUnrated}
+        />
       </div>
       {isViewCard ? (
         <GameViewCard>
           {sortedGames.map((game) => (
             <GameCardCover key={game.id} game={game} isSelected={false}>
               <CollectionEntryControls
+                userId={session.id}
                 game={game}
                 playlists={playlists}
                 selectedGames={selectedGames}
@@ -151,6 +173,7 @@ export default function CollectionView() {
           {sortedGames.map((game) => (
             <GameListEntry key={game.id} game={game}>
               <CollectionEntryControls
+                userId={session.id}
                 game={game}
                 playlists={playlists}
                 selectedGames={selectedGames}

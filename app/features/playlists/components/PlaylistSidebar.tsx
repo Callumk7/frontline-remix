@@ -8,13 +8,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronRight } from "@/components/ui/icons/ChevronRight";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown";
-import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import { Link } from "@remix-run/react";
 import { PlaylistWithGames } from "../queries/get-playlists";
 interface PlaylistSidebarProps {

@@ -1,11 +1,10 @@
-import { GameWithCoverAndGenres } from "@/components/games/types";
 import { db } from "@/util/db/db.server";
 import { Prisma } from "@prisma/client";
 
 export async function getGamesFromPlaylist(
 	userId: string,
 	playlistId: number,
-): Promise<GameWithCoverAndGenres[]> {
+) {
 	const getGames = await db.game.findMany({
 		where: {
 			playlists: {
