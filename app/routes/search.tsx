@@ -2,8 +2,7 @@ import { ExternalGameCardCover } from "@/components/games/ExternalGameCard";
 import { ExternalGameControls } from "@/components/games/ExternalGameControls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
-import { Header } from "@/components/ui/styled/header";
+import { auth } from "@/features/auth/helper.server";
 import { saveExternalGameToDB } from "@/features/explore/queries/save-to-db";
 import { IGDBGameSchema, getSearchResults } from "@/features/search/igdb";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
@@ -12,10 +11,11 @@ import { Outlet, useLoaderData } from "@remix-run/react";
 export const action = async ({ request }: ActionFunctionArgs) => {
   const body = await request.formData();
   const payload = JSON.parse(body.get("json")!.toString());
+  const session = await auth(request);
 
   try {
     const game = IGDBGameSchema.parse(payload);
-    const savedGame = await saveExternalGameToDB(game);
+    const savedGame = await saveExternalGameToDB(game, session.id);
 
     return json({ savedGame });
   } catch (err) {
@@ -29,7 +29,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   let query = url.searchParams.get("q");
   if (!query) {
-    query = "slay the spire";
+    query = "";
   }
   const results = await getSearchResults(query);
   return json({ results });
@@ -39,9 +39,6 @@ export default function SearchPage() {
   const data = useLoaderData<typeof loader>();
   return (
     <div className="relative top-16 mt-10 px-10">
-      <Header>Find more games</Header>
-      <Separator />
-      <p>Find even more games from IGDB.com, search here!</p>
       <form className="mx-auto mb-6 flex w-96 flex-row gap-2" method="get">
         <Input type="text" name="q" placeholder="Search for games" />
         <Button>search</Button>
