@@ -19,6 +19,7 @@ model User {
   games           UserGameCollection[]
   playlists       Playlist[]
   playlistFollows FollowersOnPlaylists[]
+  comments        Comment[]
   accounts        Account[]
   Session         Session[]
 }
@@ -99,7 +100,28 @@ model Playlist {
   user      User                   @relation(fields: [userId], references: [id])
   userId    String
   games     PlaylistsOnGames[]
+  comments  Comment[]
   followers FollowersOnPlaylists[]
+  tags      TagsOnPlaylists[]
+}
+
+model PlaylistTag {
+  id        Int               @id @default(autoincrement())
+  name      String
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  playlists TagsOnPlaylists[]
+}
+
+model TagsOnPlaylists {
+  playlistId Int
+  tagId      Int
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  playlist   Playlist    @relation(fields: [playlistId], references: [id])
+  tag        PlaylistTag @relation(fields: [tagId], references: [id])
+
+  @@id([playlistId, tagId])
 }
 
 model PlaylistsOnGames {
@@ -168,4 +190,16 @@ model Screenshot {
   updatedAt DateTime @updatedAt
   gameId    Int
   game      Game     @relation(fields: [gameId], references: [gameId])
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  author     User     @relation(fields: [authorId], references: [id])
+  authorId   String
+  title      String?
+  body       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  playlist   Playlist @relation(fields: [playlistId], references: [id])
+  playlistId Int
 }

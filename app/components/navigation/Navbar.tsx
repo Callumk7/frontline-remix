@@ -1,6 +1,7 @@
 import { Link, NavLink } from "@remix-run/react";
 import { Button } from "../ui/button";
 import { UserData } from "@/services/auth.server";
+import { ProfileLink } from "./ProfileLink";
 
 const links = [
   {
@@ -45,9 +46,7 @@ export function Navbar({ session }: NavbarProps) {
       </div>
       {session ? (
         <form method="post" action="/logout" className="flex flex-row items-center gap-4">
-          <Button variant={"link"}>
-            <Link to={`/profile/`}>{session.username}</Link>
-          </Button>
+          <ProfileLink userId={session.id} username={session.username} />
           <Button variant={"secondary"}>Logout</Button>
         </form>
       ) : (
