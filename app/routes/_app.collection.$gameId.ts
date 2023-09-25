@@ -15,6 +15,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 	const played = body.get("played");
 	const completed = body.get("completed");
 	const starred = body.get("starred");
+	const rating = body.get("rating");
 
 	if (!userId) {
 		return json("No user was logged in, not authorised", { status: 401 });
@@ -27,51 +28,47 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 		},
 	};
 
-	// TODO: This code is repeated and can be cleaned up - think about how to reuse a single prisma instance rather than
-	// Copy pasting the same thing three times
+	let data: object = {};
 	if (played) {
 		console.log(played);
 		let isPlayed = false;
 		played === "true" ? (isPlayed = true) : (isPlayed = false);
-
-		console.log(`PATCH REQUEST: PLAYED for: ${userId}`);
-		console.log(`setting played to ${isPlayed}`);
-		const updatePlayedGame = await db.userGameCollection.update({
-			where,
-			data: {
-				played: isPlayed,
-			},
-		});
-
-		return json(updatePlayedGame);
+		data = {
+			played: isPlayed,
+		};
 	}
 
 	if (completed) {
 		let isCompleted = false;
 		completed === "true" ? (isCompleted = true) : (isCompleted = false);
-
-		console.log(`PATCH REQUEST: COMPLETED for: ${userId}`);
-		const updatePlayedGame = await db.userGameCollection.update({
-			where,
-			data: {
-				completed: isCompleted,
-			},
-		});
-		return json(updatePlayedGame);
+		data = {
+			completed: isCompleted,
+		};
 	}
 
 	if (starred) {
 		let isStarred = false;
 		starred === "true" ? (isStarred = true) : (isStarred = false);
+		data = {
+			starred: isStarred,
+		};
+	}
 
-		console.log(`PATCH REQUEST: COMPLETED for: ${userId}`);
-		const updatePlayedGame = await db.userGameCollection.update({
-			where,
-			data: {
-				starred: isStarred,
-			},
+	if (rating) {
+		data = {
+			playerRating: Number(rating),
+		};
+	}
+
+	if (played || starred || completed || rating) {
+		const updateGame = await db.userGameCollection.update({
+			where: where,
+			data: data,
 		});
-		return json(updatePlayedGame);
+
+		if (updateGame) {
+			return json(updateGame);
+		}
 	}
 
 	return json("insufficient data provided", { status: 400 });

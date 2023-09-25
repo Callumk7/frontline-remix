@@ -1,5 +1,5 @@
 import { DeleteIcon } from "@/components/ui/icons/DeleteIcon";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import {
   DropdownMenu,
@@ -18,6 +18,10 @@ import { PlayOutline } from "@/components/ui/icons/PlayOutline";
 import { useFetcher, useSubmit } from "@remix-run/react";
 import { PlaylistWithGames } from "@/features/playlists/queries/get-playlists";
 import { GameFromCollection } from "../queries/get-collection";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Rating } from "@/components/ui/icons/Rating";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
 
 interface CollectionEntryControlsProps {
   game: GameFromCollection;
@@ -39,16 +43,47 @@ export function CollectionEntryControls({
     selectedGames.some((gameId) => gameId !== game.gameId),
   );
 
+  // useState to track the input on the player rating slider, and the timerRef to setup
+  // a delay, so that we can minimise the number of requests we make to the db with mutations
+  const [rating, setRating] = useState<number>(
+    game.users[0].playerRating ? game.users[0].playerRating : 0,
+  );
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
+  const handleRatingChange = (v: number[]) => {
+    const newRating = v[0];
+    setRating(newRating);
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    timerRef.current = window.setTimeout(() => {
+      fetcher.submit(
+        { rating: rating },
+        { method: "patch", action: `/collection/${game.gameId}` },
+      );
+    }, 1000);
+  };
+
   // Effect for ensuring that the controls instantly reflect that games are selected
   // when a user does a mass toggle
   useEffect(() => {
     setIsSelected(selectedGames.some((gameId) => gameId === game.gameId));
   }, [selectedGames, game]);
 
+  // Remix hooks for submitting forms
   const submit = useSubmit();
   const fetcher = useFetcher();
 
-  // FIX: Handle invalidating the cache
   const handleAddToPlaylist = (playlistId: number) => {
     const payload = JSON.stringify([game.gameId]);
     submit(payload, {
@@ -120,6 +155,8 @@ export function CollectionEntryControls({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
+          <DropdownMenuLabel>Add to playlist</DropdownMenuLabel>
+          <DropdownMenuSeparator />
           {playlists.map((playlist, index) => {
             return (
               <DropdownMenuCheckboxItem
@@ -178,6 +215,18 @@ export function CollectionEntryControls({
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Popover>
+        <PopoverTrigger>
+          <Rating />
+        </PopoverTrigger>
+        <PopoverContent>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="rating">Your Rating</Label>
+            <Slider id="rating" value={[rating]} onValueChange={handleRatingChange} />
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }
