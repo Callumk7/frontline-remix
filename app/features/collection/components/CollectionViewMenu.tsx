@@ -16,7 +16,7 @@ import { AddPlaylistDialog } from "@/features/playlists/components/AddPlaylistDi
 import { Toggle } from "@/components/ui/toggle";
 import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import { ChevronDown } from "@/components/ui/icons/ChevronDown";
-import { PlaylistWithGames } from "@/features/playlists/fetching/get-playlists";
+import { PlaylistWithGames } from "@/features/playlists/queries/get-playlists";
 import { useSubmit } from "@remix-run/react";
 
 interface CollectionViewMenuProps {
@@ -111,14 +111,16 @@ export function CollectionViewMenu({
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
+
       <Toggle
-        pressed={viewIsCard}
+        pressed={!viewIsCard}
         variant={"outline"}
         onPressedChange={handleToggleView}
         aria-label="view"
       >
         <MenuIcon />
       </Toggle>
+
       <AddPlaylistDialog
         dialogOpen={dialogOpen}
         setDialogOpen={setDialogOpen}

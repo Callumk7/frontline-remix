@@ -2,7 +2,6 @@ import { GameCardCover } from "@/components/games/GameCard";
 import { GameListEntry } from "@/components/games/GameList";
 import { GameViewCard, GameViewList } from "@/components/games/GameView";
 import { GameViewSort } from "@/components/games/GameViewSort";
-import { Separator } from "@/components/ui/separator";
 import { CollectionEntryControls } from "@/features/collection/components/CollectionGameControls";
 import { CollectionViewMenu } from "@/features/collection/components/CollectionViewMenu";
 import { GenreFilter } from "@/features/collection/components/GenreFilter";
@@ -20,6 +19,7 @@ import { invalidateCache } from "@/util/redis/invalidate-cache";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import invariant from "tiny-invariant";
+import { GameViewFilter } from "@/components/games/GameViewFilter";
 
 // NOTE: -------------------------------
 // I SHOULD try and co-locate the actions (for adding and removing stuff),
@@ -28,7 +28,6 @@ import invariant from "tiny-invariant";
 // This means that this action SHOULD handle adding and removing games from the collection.
 // Any form that does this elsewhere in the application Should either submit, fetcher, or Form to here.
 // -------------------------------------
-
 
 // TODO: ADD REMOVE GAME ACTION TO THIS ROUTE
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -59,6 +58,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       await invalidateCache(userId.toString(), ["collection"]);
     }
 
+    // FIX: make this a json function helper 
     const resBody = JSON.stringify(createCollection);
     return new Response(resBody, { status: 200 });
   } catch (err) {
@@ -74,9 +74,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     failureRedirect: "/login",
   });
 
-  // redis cache
   const [games, playlists, genres] = await Promise.all([
-    cacheFetch(session.id, ["collection"], getUserCollection),
+    getUserCollection(session.id),
     cacheFetch(session.id, ["playlists"], getUserPlaylists),
     cacheFetch(session.id, ["genres"], getUserGenres),
   ]);
@@ -108,7 +107,6 @@ export default function CollectionView() {
   );
 
   // select game functions
-  // NOTE: selected games is used in menubars for bulk editing games where needed
   const { selectedGames, handleSelectedToggled, handleSelectAll, handleUnselectAll } =
     useSelectGames(sortedGames);
 
@@ -133,6 +131,7 @@ export default function CollectionView() {
           handleToggleView={handleToggleView}
         />
         <GameViewSort sortOption={sortOption} setSortOption={setSortOption} />
+        <GameViewFilter />
       </div>
       {isViewCard ? (
         <GameViewCard>

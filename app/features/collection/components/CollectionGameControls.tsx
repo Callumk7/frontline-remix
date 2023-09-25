@@ -15,12 +15,12 @@ import { Add } from "@/components/ui/icons/Add";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PlayFill } from "@/components/ui/icons/PlayFill";
 import { PlayOutline } from "@/components/ui/icons/PlayOutline";
-import { GameFromCollectionWithPlaylists } from "@/components/games/types";
-import { useSubmit } from "@remix-run/react";
-import { PlaylistWithGames } from "@/features/playlists/fetching/get-playlists";
+import { useFetcher, useSubmit } from "@remix-run/react";
+import { PlaylistWithGames } from "@/features/playlists/queries/get-playlists";
+import { GameFromCollection } from "../queries/get-collection";
 
 interface CollectionEntryControlsProps {
-  game: GameFromCollectionWithPlaylists;
+  game: GameFromCollection;
   playlists: PlaylistWithGames[];
   selectedGames: number[];
   handleSelectedToggled: (gameId: number) => void;
@@ -33,6 +33,8 @@ export function CollectionEntryControls({
   handleSelectedToggled,
 }: CollectionEntryControlsProps) {
   const [isPlayed, setIsPlayed] = useState<boolean>(game.users[0].played);
+  const [isCompleted, setIsCompleted] = useState<boolean>(game.users[0].completed);
+  const [isStarred, setIsStarred] = useState<boolean>(game.users[0].starred);
   const [isSelected, setIsSelected] = useState<boolean>(() =>
     selectedGames.some((gameId) => gameId !== game.gameId),
   );
@@ -44,6 +46,7 @@ export function CollectionEntryControls({
   }, [selectedGames, game]);
 
   const submit = useSubmit();
+  const fetcher = useFetcher();
 
   // FIX: Handle invalidating the cache
   const handleAddToPlaylist = (playlistId: number) => {
@@ -53,6 +56,48 @@ export function CollectionEntryControls({
       action: `/playlists/${playlistId}`,
       encType: "application/json",
     });
+  };
+
+  const handleTogglePlayed = () => {
+    fetcher.submit(
+      {
+        played: !isPlayed,
+      },
+      {
+        method: "patch",
+        action: `/collection/${game.gameId}`,
+      },
+    );
+
+    setIsPlayed(!isPlayed);
+  };
+
+  const handleToggleCompleted = () => {
+    fetcher.submit(
+      {
+        completed: !isCompleted,
+      },
+      {
+        method: "patch",
+        action: `/collection/${game.gameId}`,
+      },
+    );
+
+    setIsCompleted(!isCompleted);
+  };
+
+  const handleToggleStarred = () => {
+    fetcher.submit(
+      {
+        starred: !isStarred,
+      },
+      {
+        method: "patch",
+        action: `/collection/${game.gameId}`,
+      },
+    );
+
+    setIsStarred(!isStarred);
   };
 
   return (
@@ -65,13 +110,7 @@ export function CollectionEntryControls({
           setIsSelected(!isSelected);
         }}
       />
-      <Button
-        variant={"ghost"}
-        size={"icon"}
-        onClick={() => {
-          setIsPlayed(!isPlayed);
-        }}
-      >
+      <Button variant={"ghost"} size={"icon"} onClick={handleTogglePlayed}>
         {isPlayed ? <PlayFill className="text-primary" /> : <PlayOutline />}
       </Button>
       <DropdownMenu>
@@ -121,25 +160,19 @@ export function CollectionEntryControls({
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
             checked={isPlayed}
-            onCheckedChange={() => {
-              setIsPlayed(!isPlayed);
-            }}
+            onCheckedChange={handleTogglePlayed}
           >
             Played
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={isPlayed}
-            onCheckedChange={() => {
-              setIsPlayed(!isPlayed);
-            }}
+            checked={isCompleted}
+            onCheckedChange={handleToggleCompleted}
           >
             Completed
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={isPlayed}
-            onCheckedChange={() => {
-              setIsPlayed(!isPlayed);
-            }}
+            checked={isStarred}
+            onCheckedChange={handleToggleStarred}
           >
             Starred
           </DropdownMenuCheckboxItem>

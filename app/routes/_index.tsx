@@ -1,17 +1,13 @@
 import { GameCardCoverPopular } from "@/components/games/GameCard";
 import { GameListEntry } from "@/components/games/GameList";
 import { GameViewCard, GameViewList } from "@/components/games/GameView";
-import {
-  GameFromCollectionWithPlaylists,
-  gameFromCollectionInclude,
-} from "@/components/games/types";
+import { GameFromCollectionWithPlaylists } from "@/components/games/types";
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import { Toggle } from "@/components/ui/toggle";
-import { getPopularGames } from "@/features/explore/queries";
+import { getRecentGames } from "@/features/explore/queries";
 import { useView } from "@/hooks/view";
 import { authenticator } from "@/services/auth.server";
-import { db } from "@/util/db/db.server";
 import { getCollectionGameIds } from "@/util/queries/get-collection-ids";
 import {
   ActionFunctionArgs,
@@ -38,7 +34,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     failureRedirect: "/login",
   });
 
-  const games = await getPopularGames(10);
+  const games = await getRecentGames(10);
 
   let gameIds: number[] = [];
   if (session) {

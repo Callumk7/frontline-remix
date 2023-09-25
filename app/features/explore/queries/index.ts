@@ -2,6 +2,18 @@ import { gameInclude } from "@/components/games/types";
 import { db } from "@/util/db/db.server";
 import { Prisma } from "@prisma/client";
 
+export async function getRecentGames(count: number) {
+	const games = await db.game.findMany({
+		take: count,
+		orderBy: {
+			createdAt: "desc",
+		},
+		include: popularGamesInclude,
+	});
+
+	return games;
+}
+
 // popular: games that are in the most playlists
 export async function getPopularGames(count: number): Promise<PopularGame[]> {
 	const games = await db.game.findMany({
@@ -35,15 +47,15 @@ export async function getTopRatedGames(count: number) {
 	const games = await db.game.findMany({
 		where: {
 			aggregatedRatingCount: {
-				gt: 3
-			}
+				gt: 3,
+			},
 		},
 		orderBy: {
 			aggregatedRating: "desc",
 		},
 		take: count,
-		include: gameInclude
-	})
+		include: gameInclude,
+	});
 
-	return games
+	return games;
 }

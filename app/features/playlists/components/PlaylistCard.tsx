@@ -1,8 +1,7 @@
 import { Link } from "@remix-run/react";
 import { IGDBImage } from "@/components/games/types";
-import { Button } from "@/components/ui/button";
 import { PlaylistWithGames } from "../queries/get-playlists";
-import { UserLink } from "@/features/profile/components/UserLink";
+import { ProfileLink } from "@/components/navigation/ProfileLink";
 
 interface PlaylistCardProps {
   playlist: PlaylistWithGames;
@@ -29,7 +28,10 @@ export function PlaylistCard({ playlist }: PlaylistCardProps) {
       <h1 className="px-3 py-2 font-semibold">{playlist.name}</h1>
       <div className="flex flex-row items-end gap-3 px-3 py-2 text-sm text-foreground/80">
         <span className="py-1">Created by</span>
-        <UserLink username={playlist.user.username} userId={playlist.userId} />
+        <ProfileLink username={playlist.user.username} userId={playlist.userId} />
+      </div>
+      <div>
+        <span>Followers: </span>
       </div>
     </Link>
   );

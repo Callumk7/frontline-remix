@@ -34,7 +34,7 @@ export default function AppLayout() {
 
   return (
     <div className="flex w-full flex-row justify-start gap-4">
-      <div className="hidden md:block">
+      <div className="hidden md:block max-w-fit">
         <PlaylistSidebar
           playlists={playlists}
           userId={session.id}
