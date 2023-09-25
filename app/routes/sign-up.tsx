@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/form";
 import { createNewUser } from "@/services/auth.server";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Link } from "@remix-run/react";
+import { redirect } from "remix-typedjson";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const body = await request.formData();
@@ -12,7 +13,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const newUser = await createNewUser(username, email, password);
   console.log(newUser?.username);
-  return null;
+  return redirect("/login");
 };
 
 export default function SignUpPage() {

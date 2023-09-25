@@ -1,10 +1,14 @@
 import { GameCardCover } from "@/components/games/GameCard";
 import { GameListEntry } from "@/components/games/GameList";
 import { GameViewCard, GameViewList } from "@/components/games/GameView";
+import { ProfileLink } from "@/components/navigation/ProfileLink";
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import { Toggle } from "@/components/ui/toggle";
-import { CommentType, CommentView } from "@/features/comments/components/CommentView";
+import { CommentForm } from "@/features/comments/components/CommentForm";
+import { CommentView } from "@/features/comments/components/CommentView";
+import { getPlaylistComments } from "@/features/comments/queries";
+import { PlaylistControls } from "@/features/playlists/components/PlaylistGameControls";
 import { getGamesFromPlaylist } from "@/features/playlists/queries/get-playlist-games";
 import { getPlaylistDetails } from "@/features/playlists/queries/get-playlists";
 import { useView } from "@/hooks/view";
@@ -13,7 +17,7 @@ import { db } from "@/util/db/db.server";
 import { cacheFetch } from "@/util/redis/cache-fetch";
 import { invalidateCache } from "@/util/redis/invalidate-cache";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import { Form, Link, Outlet, useFetcher, useLocation } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import invariant from "tiny-invariant";
 
@@ -56,15 +60,14 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
       }
       return json({ responseBody });
     } catch (err) {
-      return new Response("Server failure, unable to post all games to playlist", {
+      return json("Server failure, unable to post all games to playlist", {
         status: 500,
       });
     }
   } else {
-    return new Response(
-      "Array is empty. Please send an array containing atleast one number.",
-      { status: 400 },
-    );
+    return json("Array is empty. Please send an array containing atleast one number.", {
+      status: 400,
+    });
   }
 };
 
@@ -76,90 +79,54 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const playlistId = Number(params.playlistId);
   invariant(playlistId, "Expected playlist id");
 
-  const [games, playlist] = await Promise.all([
-    cacheFetch(playlistId, ["playlist", "games"], getGamesFromPlaylist),
+  const games = await getGamesFromPlaylist(session.id, playlistId);
+  const comments = await getPlaylistComments(playlistId);
+
+  const [playlist] = await Promise.all([
     cacheFetch(playlistId, ["playlist", "details"], getPlaylistDetails),
   ]);
 
-  return typedjson({ games, playlist, session });
+  return typedjson({ games, playlist, playlistId, session, comments });
 };
 
-const comments: CommentType[] = [
-  {
-    id: 1,
-    user: {
-      name: "Thierry Henry",
-      title: "Former Striker",
-      imageUrl:
-        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.pinimg.com%2Foriginals%2F69%2Fdd%2Fd0%2F69ddd0aaf2d8072294f8076c1bbbc0a8.jpg&f=1&nofb=1&ipt=6ccb33bf112453974b8c1a1f743b1432a42dcb4fbd4f7345b6deaed215dec7f6&ipo=images",
-    },
-    body: "I enjoyed playing 'FIFA'. Just like when Arsenal used to dominate Tottenham, orchestrating precise attacks to score goals in this game brings back memories. It's a reminder of good times. Tottenham are shit.",
-  },
-  {
-    id: 2,
-    user: {
-      name: "Patrick Vieira",
-      title: "Former Midfielder",
-      imageUrl:
-        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftmssl.akamaized.net%2Fimages%2Fportrait%2Foriginals%2F3183-1458213441.jpg&f=1&nofb=1&ipt=8b92b0782d94349504aa55b62c32c59817debf3f81b13f13d74cfa86262079d8&ipo=images",
-    },
-    body: "In 'Call of Duty', the tactical decisions made under pressure mirrors the spirit of a North London derby. Every victory, just like at Arsenal against Tottenham, feels hard-earned and rewarding. Tottenham are shit.",
-  },
-  {
-    id: 3,
-    user: {
-      name: "Dennis Bergkamp",
-      title: "Former Striker",
-      imageUrl:
-        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimages.daznservices.com%2Fdi%2Flibrary%2Fgoal_uk%2F55%2F6%2Fdennis-bergkamp-arsenal_v7q8iysxgst51n0n1bt5fjdu9.jpg%3Ft%3D-279420448%26quality%3D100&f=1&nofb=1&ipt=0ba654bf2d80574b530331fde08f15dcfa696ec5b64cfed7e0ceaa519ac69310&ipo=images",
-    },
-    body: "Playing 'World of Warcraft' has been an epic experience where victory demands teamwork and strategy, much like Arsenal's memorable wins over Tottenham. Those raid bosses falling felt like winning the derby matches. Tottenham are shit.",
-  },
-  {
-    id: 4,
-    user: {
-      name: "Robert Pires",
-      title: "Former Midfielder",
-      imageUrl:
-        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.V7QWw8GzF5TriZJgYGiU7wHaE6%26pid%3DApi&f=1&ipt=90b84fb71c96c96b13fb7601fcc651d627d871b92b3264971ccc5e47ac7db862&ipo=images",
-    },
-    body: "Super Mario Brothers, just like many Arsenal games, starts easy but gets challenging. Getting past those tricky levels reminds me of how we had to overcome Tottenham's defenses on the pitch. Tottenham are shit.",
-  },
-  {
-    id: 5,
-    user: {
-      name: "Freddie Ljungberg",
-      title: "Former Winger",
-      imageUrl:
-        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fs-media-cache-ak0.pinimg.com%2F736x%2F0a%2F92%2F68%2F0a9268dcfe3c909a2dfde108432700e4.jpg&f=1&nofb=1&ipt=184c16cbce20830600f48b7b67a02c4fa898619c8ca87dcf871467c293bbe167&ipo=images",
-    },
-    body: "Mastering 'Skyrim', with its intricate tales and vast world, feels like preparing for a North London derby. The triumph over dragons is as sweet as those victories over Tottenham. Tottenham are shit.",
-  },
-];
 export default function PlaylistView() {
-  const { games, playlist, session } = useTypedLoaderData<typeof loader>();
+  const { games, playlist, playlistId, session, comments } =
+    useTypedLoaderData<typeof loader>();
 
   const isOwner = playlist?.userId === session.id;
-
   const fetcher = useFetcher();
-
+  const location = useLocation();
   const { isViewCard, handleToggleView } = useView();
 
-  // TODO: fix the types here, make sure that the type for the shared game view is the lowest common denominator
   return (
     <div>
       <div className="flex w-full flex-col gap-7 px-6 py-8">
-        <h1 className="font-cabin text-title font-black leading-none text-foreground">
+        <h1 className="font-cabin text-6xl font-black leading-none text-foreground">
           {playlist?.name}
         </h1>
         <h1>
-          <span className="mr-3">a playlist by</span>
-          <Button size={"link"} variant={"link"}>
-            {playlist?.user.username}
-          </Button>
+          <span className="text-bold mr-3">Made by:</span>
+          <ProfileLink userId={playlist!.userId} username={playlist!.user.username} />
         </h1>
         {isOwner ? (
-          <div>nice</div>
+          <div className="flex flex-row gap-5">
+            {location.pathname.includes("/add") ? (
+              <Button asChild size={"sm"} variant={"secondary"}>
+                <Link to={`/playlists/${playlistId}`}>Close Menu</Link>
+              </Button>
+            ) : (
+              <Button asChild size={"sm"}>
+                <Link to={`/playlists/${playlistId}/add`}>Add Games..</Link>
+              </Button>
+            )}
+            <Form method="delete" action="/playlists/">
+              <input type="hidden" name="userId" value={session.id} />
+              <input type="hidden" name="playlistId" value={playlist?.id} />
+              <Button size={"sm"} variant={"secondary"}>
+                Delete
+              </Button>
+            </Form>
+          </div>
         ) : (
           <div className="flex flex-row gap-5">
             <fetcher.Form method="post" action="/playlists/following">
@@ -175,6 +142,7 @@ export default function PlaylistView() {
           </div>
         )}
       </div>
+      <Outlet />
       <Toggle
         className="my-6"
         pressed={isViewCard}
@@ -188,7 +156,7 @@ export default function PlaylistView() {
         <GameViewCard>
           {games.map((game) => (
             <GameCardCover key={game.id} game={game} isSelected={false}>
-              <Controls />
+              <PlaylistControls game={game} />
             </GameCardCover>
           ))}
         </GameViewCard>
@@ -196,16 +164,13 @@ export default function PlaylistView() {
         <GameViewList>
           {games.map((game) => (
             <GameListEntry key={game.id} game={game}>
-              <Controls />
+              <PlaylistControls game={game} />
             </GameListEntry>
           ))}
         </GameViewList>
       )}
       <CommentView comments={comments} />
+      <CommentForm playlistId={playlistId} userId={session.id} />
     </div>
   );
-}
-
-function Controls() {
-  return <div>controls</div>;
 }

@@ -10,18 +10,19 @@ import {
 import { getTopRatedGames } from "@/features/explore/queries";
 import { saveExternalGameToDB } from "@/features/explore/queries/save-to-db";
 import { IGDBGameSchema } from "@/features/search/igdb";
-import { useView } from "@/hooks/view";
 import { getCollectionGameIds } from "@/util/queries/get-collection-ids";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
+import { toast } from "sonner";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const body = await request.json();
+  const body = await request.formData();
+  const payload = JSON.parse(body.get("json")!.toString());
 
   try {
-    const game = IGDBGameSchema.parse(body);
+    const game = IGDBGameSchema.parse(payload);
     const savedGame = await saveExternalGameToDB(game);
 
     return json({ savedGame });
@@ -103,8 +104,10 @@ function HomeControlComponent({
   useEffect(() => {
     if (fetcher.data) {
       setIsInCollection(true);
+      toast.success("Saved to collection");
     }
-  }, [setIsInCollection, fetcher]);
+  }, [setIsInCollection, fetcher.data]);
+
   return (
     <div className="flex flex-row justify-between">
       {isInCollection ? (

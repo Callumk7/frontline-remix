@@ -1,4 +1,3 @@
-import { Separator } from "@/components/ui/separator";
 import { Outlet } from "@remix-run/react";
 
 export default function ProfileLayout() {

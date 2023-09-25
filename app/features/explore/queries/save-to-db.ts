@@ -1,14 +1,7 @@
 import { IGDBGame } from "@/features/search/igdb";
 import { db } from "@/util/db/db.server";
 
-const createPrismaArgs = (game: IGDBGame) => {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const args: any = {};
-	args.gameId = game.id
-
-}
-
-export async function saveExternalGameToDB(game: IGDBGame) {
+export async function saveExternalGameToDB(game: IGDBGame, userId: string) {
 	try {
 		const postGameToDatabase = await db.game.upsert({
 			where: {
@@ -34,8 +27,18 @@ export async function saveExternalGameToDB(game: IGDBGame) {
 				releaseDate: game.first_release_date ? game.first_release_date : null,
 			},
 		});
-
+		
 		console.log(`game saved: ${postGameToDatabase.title}`);
+
+		const addGameToCollection = await db.userGameCollection.create({
+			data: {
+				gameId: game.id,
+				userId: userId
+			}
+		})
+
+		console.log(`game saved to collection of user ${addGameToCollection.userId}`)
+
 		// handle genres, if the game has associated genres
 		if (game.genres) {
 			if (game.genres.length > 0) {

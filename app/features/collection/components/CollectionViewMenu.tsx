@@ -1,23 +1,21 @@
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarLabel,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
 import { useState } from "react";
 import { Input } from "@/components/ui/form";
 import { AddPlaylistDialog } from "@/features/playlists/components/AddPlaylistDialog";
 import { Toggle } from "@/components/ui/toggle";
-import { MenuIcon } from "@/components/ui/icons/MenuIcon";
 import { ChevronDown } from "@/components/ui/icons/ChevronDown";
-import { PlaylistWithGames } from "@/features/playlists/fetching/get-playlists";
+import { PlaylistWithGames } from "@/features/playlists/queries/get-playlists";
 import { useSubmit } from "@remix-run/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown";
+import { Button } from "@/components/ui/button";
 
 interface CollectionViewMenuProps {
   userId: string;
@@ -64,61 +62,65 @@ export function CollectionViewMenu({
         onChange={handleSearchTermChanged}
         placeholder="Search for a game"
       />
-      <Menubar>
-        <MenubarMenu>
-          <MenubarTrigger>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant={"outline"}>
             <span className="mr-2">Menu</span> <ChevronDown />
-          </MenubarTrigger>
-          <MenubarContent>
-            <MenubarLabel>Bulk Manage</MenubarLabel>
-            <MenubarSeparator />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>Bulk Manage</DropdownMenuLabel>
+          <DropdownMenuSeparator />
 
-            <MenubarItem
-              onClick={selectedGames.length > 0 ? handleUnselectAll : handleSelectAll}
-            >
-              {selectedGames.length > 0 ? "Deselect all" : "Select all"}
-            </MenubarItem>
+          <DropdownMenuItem
+            onClick={selectedGames.length > 0 ? handleUnselectAll : handleSelectAll}
+          >
+            {selectedGames.length > 0 ? "Deselect all" : "Select all"}
+          </DropdownMenuItem>
 
-            <MenubarSub>
-              <MenubarSubTrigger disabled={selectedGames.length === 0}>
-                <span>Add selected to Playlist..</span>
-              </MenubarSubTrigger>
-              <MenubarSubContent>
-                {playlists.map((playlist, index) => (
-                  <MenubarItem
-                    id={String(playlist.id)}
-                    key={index}
-                    onClick={() => handleBulkAddToPlaylist(playlist.id)}
-                  >
-                    {playlist.name}
-                  </MenubarItem>
-                ))}
+          <DropdownMenuSubContent>
+            <DropdownMenuSubTrigger disabled={selectedGames.length === 0}>
+              <span>Add selected to Playlist..</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              {playlists.map((playlist, index) => (
+                <DropdownMenuItem
+                  id={String(playlist.id)}
+                  key={index}
+                  onClick={() => handleBulkAddToPlaylist(playlist.id)}
+                >
+                  {playlist.name}
+                </DropdownMenuItem>
+              ))}
 
-                <MenubarSeparator />
+              <DropdownMenuSeparator />
 
-                <MenubarItem onClick={() => setDialogOpen(true)}>
-                  Create Playlist..
-                </MenubarItem>
-              </MenubarSubContent>
-            </MenubarSub>
+              <DropdownMenuItem onClick={() => setDialogOpen(true)}>
+                Create Playlist..
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSubContent>
 
-            <MenubarItem
-              onClick={() => console.log("delete selected games")}
-              className="focus-visible:bg-destructive/80"
-            >
-              Remove selected from Collection
-            </MenubarItem>
-          </MenubarContent>
-        </MenubarMenu>
-      </Menubar>
+          <DropdownMenuItem
+            onClick={() => console.log("delete selected games")}
+            className="focus-visible:bg-destructive/80"
+          >
+            Remove selected from Collection
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       <Toggle
-        pressed={viewIsCard}
+        pressed={!viewIsCard}
         variant={"outline"}
         onPressedChange={handleToggleView}
         aria-label="view"
       >
-        <MenuIcon />
+        <span className="w-max">
+          Switch View
+        </span>
       </Toggle>
+
       <AddPlaylistDialog
         dialogOpen={dialogOpen}
         setDialogOpen={setDialogOpen}
