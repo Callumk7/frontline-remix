@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
@@ -78,7 +79,7 @@ export function CollectionViewMenu({
             {selectedGames.length > 0 ? "Deselect all" : "Select all"}
           </DropdownMenuItem>
 
-          <DropdownMenuSubContent>
+          <DropdownMenuSub>
             <DropdownMenuSubTrigger disabled={selectedGames.length === 0}>
               <span>Add selected to Playlist..</span>
             </DropdownMenuSubTrigger>
@@ -99,7 +100,7 @@ export function CollectionViewMenu({
                 Create Playlist..
               </DropdownMenuItem>
             </DropdownMenuSubContent>
-          </DropdownMenuSubContent>
+          </DropdownMenuSub>
 
           <DropdownMenuItem
             onClick={() => console.log("delete selected games")}

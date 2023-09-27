@@ -7,47 +7,31 @@ import {
   ExploreSection,
   TopRatedLink,
 } from "@/features/explore/components/ExploreSection";
-import { getTopRatedGames } from "@/features/explore/queries";
-import { saveExternalGameToDB } from "@/features/explore/queries/save-to-db";
-import { IGDBGameSchema } from "@/features/search/igdb";
+import { getPopularGames, getRecentGames, getTopRatedGames } from "@/features/explore/queries";
 import { getCollectionGameIds } from "@/util/queries/get-collection-ids";
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import { toast } from "sonner";
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const body = await request.formData();
-  const payload = JSON.parse(body.get("json")!.toString());
-
-  try {
-    const game = IGDBGameSchema.parse(payload);
-    const savedGame = await saveExternalGameToDB(game);
-
-    return json({ savedGame });
-  } catch (err) {
-    console.error("Error: Problem saving game to external database", err);
-
-    return json("Error saving game to database..", { status: 500 });
-  }
-};
-
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await auth(request);
 
-  const games = await getTopRatedGames(10);
+  const topRatedGames = await getTopRatedGames(10);
+  const mostPopularGames = await getPopularGames(10);
+  const recentlyAddedGames = await getRecentGames(10);
 
   let gameIds: number[] = [];
   if (session) {
     gameIds = await getCollectionGameIds(session.id);
   }
 
-  return typedjson({ games, gameIds, session });
+  return typedjson({ topRatedGames, mostPopularGames, recentlyAddedGames, gameIds, session });
 };
 
 export default function ExplorePage() {
-  const { games, gameIds, session } = useTypedLoaderData<typeof loader>();
+  const { topRatedGames, mostPopularGames, recentlyAddedGames, gameIds, session } = useTypedLoaderData<typeof loader>();
 
   return (
     <div className="relative top-16 flex flex-col gap-28">
@@ -57,7 +41,7 @@ export default function ExplorePage() {
         link={TopRatedLink()}
       >
         <GameViewCard>
-          {games.map((game) => (
+          {topRatedGames.map((game) => (
             <GameCardCover key={game.id} game={game} isSelected={false}>
               <HomeControlComponent
                 game={game}
@@ -68,13 +52,32 @@ export default function ExplorePage() {
           ))}
         </GameViewCard>
       </ExploreSection>
+
+      <ExploreSection
+        title="Recently Saved Games"
+        subtitle="How many have you played?"
+        link={TopRatedLink()}
+      >
+        <GameViewCard>
+          {recentlyAddedGames.map((game) => (
+            <GameCardCover key={game.id} game={game} isSelected={false}>
+              <HomeControlComponent
+                game={game}
+                inCollection={gameIds.includes(game.gameId)}
+                userId={session.id}
+              />
+            </GameCardCover>
+          ))}
+        </GameViewCard>
+      </ExploreSection>
+
       <ExploreSection
         title="Most Popular"
         subtitle="How many have you played?"
         link={TopRatedLink()}
       >
         <GameViewCard>
-          {games.map((game) => (
+          {mostPopularGames.map((game) => (
             <GameCardCover key={game.id} game={game} isSelected={false}>
               <HomeControlComponent
                 game={game}
