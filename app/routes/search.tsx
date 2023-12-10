@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
 import { auth } from "@/features/auth/helper.server";
 import { saveExternalGameToDB } from "@/features/explore/queries/save-to-db";
-import { IGDBGame, IGDBGameSchema, getSearchResults } from "@/features/search/igdb";
+import { getSearchResults } from "@/features/search/igdb";
+import { IGDBGame, IGDBGameSchema } from "@/features/search/types";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 
@@ -26,8 +27,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // using the url to complete the query. There is a problem in that it will 
+  // search a blank string every time we visit this route, but that probably
+  // isn't a big deal.
   const url = new URL(request.url);
   let query = url.searchParams.get("q");
+  // this is just to send off a query so the page loads, I could probably handle this better
   if (!query) {
     query = "";
   }

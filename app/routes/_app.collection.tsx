@@ -76,6 +76,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const [games, playlists, genres] = await Promise.all([
     getUserCollection(session.id),
+    // WARN: I think the cache function was not finished. This should be reviewed.
     cacheFetch(session.id, ["playlists"], getUserPlaylists),
     cacheFetch(session.id, ["genres"], getUserGenres),
   ]);

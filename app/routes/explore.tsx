@@ -18,6 +18,10 @@ import { toast } from "sonner";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await auth(request);
 
+  // These are functions that return data from our database, rather than IGDB.
+  // Right now, there are fetched sequentially, but we could do this in parallel if we like.
+  // I want to implement a service for getting games from the external database, and searching
+  // with more granularity. 
   const topRatedGames = await getTopRatedGames(10);
   const mostPopularGames = await getPopularGames(10);
   const recentlyAddedGames = await getRecentGames(10);

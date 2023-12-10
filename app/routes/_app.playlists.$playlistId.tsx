@@ -142,6 +142,10 @@ export default function PlaylistView() {
           </div>
         )}
       </div>
+      {/*
+      This was an experiment to add a form through nested routing,
+      and I am not sure if I like it. 
+      */}
       <Outlet />
       <Toggle
         className="my-6"
