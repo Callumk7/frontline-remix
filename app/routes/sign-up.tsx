@@ -13,7 +13,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const newUser = await createNewUser(username, email, password);
   console.log(newUser?.username);
-  return redirect("/login");
+  return redirect("/");
 };
 
 export default function SignUpPage() {

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
 import { auth } from "@/features/auth/helper.server";
 import { saveExternalGameToDB } from "@/features/explore/queries/save-to-db";
-import { IGDBGameSchema, getSearchResults } from "@/features/search/igdb";
+import { IGDBGame, IGDBGameSchema, getSearchResults } from "@/features/search/igdb";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 
@@ -31,7 +31,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (!query) {
     query = "";
   }
-  const results = await getSearchResults(query);
+
+  let results: IGDBGame[] = [];
+  try {
+    results = await getSearchResults(query);
+  } catch (err) {
+    console.error("Error: Problem getting search results", err);
+    results = [];
+  }
   return json({ results });
 };
 
@@ -44,6 +51,12 @@ export default function SearchPage() {
         <Button>search</Button>
       </form>
       <Outlet />
+      {data.results.length === 0 && (
+        <div className="text-center text-gray-500">
+          <h2 className="text-2xl font-semibold">No results found</h2>
+          <p className="text-lg">Try searching for something else</p>
+        </div>
+      )}
       <div className="mx-auto grid w-4/5 grid-cols-2 gap-4 md:w-full md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
         {data.results.map((result) => (
           <ExternalGameCardCover key={result.id} game={result} isSelected={false}>

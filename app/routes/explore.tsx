@@ -1,5 +1,5 @@
 import { GameCardCover } from "@/components/games/GameCard";
-import { GameViewCard, GameViewList } from "@/components/games/GameView";
+import { GameViewCard } from "@/components/games/GameView";
 import { GameFromCollectionWithPlaylists } from "@/components/games/types";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/features/auth/helper.server";
