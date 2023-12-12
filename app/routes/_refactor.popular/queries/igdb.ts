@@ -1,4 +1,4 @@
-import { IGDBGame, IGDBGameSchema } from "@/features/search/types";
+import { IGDBGame, IGDBGameSchema } from "@/types/api/igdb";
 
 export const getPopularGames = async () => {
   const url = "https://api.igdb.com/v4/games";

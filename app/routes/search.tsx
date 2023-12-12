@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/form";
 import { auth } from "@/features/auth/helper.server";
 import { saveExternalGameToDB } from "@/features/explore/queries/save-to-db";
 import { getSearchResults } from "@/features/search/igdb";
-import { IGDBGame, IGDBGameSchema } from "@/features/search/types";
+import { IGDBGame, IGDBGameSchema } from "@/types/api/igdb";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 

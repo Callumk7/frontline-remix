@@ -1,4 +1,4 @@
-import { IGDBGame, IGDBGameSchema } from "./types";
+import { IGDBGame, IGDBGameSchema } from "@/types/api/igdb";
 
 export async function getSearchResults(q: string): Promise<IGDBGame[]> {
 	const res = await fetch(process.env.IGDB_URL!, {
