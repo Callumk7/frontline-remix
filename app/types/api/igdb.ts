@@ -49,3 +49,16 @@ export const IGDBGameNoArtworkSchemaArray = z.array(IGDBGameNoArtworkSchema);
 
 export type IGDBGame = z.infer<typeof IGDBGameSchema>;
 export type IGDBGameNoArtwork = z.infer<typeof IGDBGameNoArtworkSchema>;
+
+export type IGDBImage =
+	| "cover_small"
+	| "screenshot_med"
+	| "cover_big"
+	| "logo_med"
+	| "screenshot_big"
+	| "screenshot_huge"
+	| "thumb"
+	| "micro"
+	| "720p"
+	| "1080p";
+

@@ -1,9 +1,7 @@
-import { IGDBGame } from "@/features/search/igdb";
-import clsx from "clsx";
-import { IGDBImage } from "./types";
+import { IGDBGame, IGDBGameNoArtwork, IGDBImage } from "@/types/api/igdb";
 
 interface ExternalGameCardCoverProps {
-  game: IGDBGame;
+  game: IGDBGame | IGDBGameNoArtwork;
   isCompleted?: boolean;
   isSelected: boolean;
   children: React.ReactNode;

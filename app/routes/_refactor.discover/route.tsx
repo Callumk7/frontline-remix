@@ -8,31 +8,41 @@ import {
   IGDBGameNoArtworkSchemaArray,
 } from "@/types/api/igdb";
 import { useLoaderData } from "@remix-run/react";
+import { ExternalGameCardCover } from "@/components/games/ExternalGameCard";
 
 const URL = process.env.IGDB_URL!;
 
 export const loader = async (_args: LoaderFunctionArgs) => {
   // get all genres from IGDB. Not sure how to prioritise genres based on popularity, so we'll just get them all
   const genres = await getGenres();
+  console.log(genres);
 
   // we store games by their genre, so we can display them easily in the UI
   const gamesByGenre: Record<string, IGDBGameNoArtwork[]> = {};
 
   // Each request is now a Promise in this array
   // We have lost a try/catch, but we do have a .catch where we just log an error and don't break the app
-  const genrePromises = genres.map((genre) =>
-    fetchGamesFromIGDB(URL, {
-      fields: "full",
-      limit: 10,
-      sort: ["rating desc"],
-      filters: [`genres = ${genre.id}`, "rating >= 80", "follows >= 100"],
-    })
-      .then((gamesFromGenre) => IGDBGameNoArtworkSchemaArray.parseAsync(gamesFromGenre))
-      .then((parsedGames) => {
-        gamesByGenre[genre.name] = parsedGames;
+  const genrePromises = genres.map(
+    (genre) =>
+      fetchGamesFromIGDB(URL, {
+        fields: "full",
+        limit: 10,
+        sort: ["rating desc"],
+        filters: [
+          `genres = ${genre.id}`,
+          "cover != null",
+          "rating != null",
+          "rating > 50",
+          "follows > 10",
+          // "first_release_date >= 1577836800"
+        ],
       })
-      .then(() => console.log(`Parsed ${genre.name}`))
-      .catch((err) => console.error("Error parsing games from IGDB", err)), // TODO: research better error handling for zod errors
+        .then((gamesFromGenre) => IGDBGameNoArtworkSchemaArray.parseAsync(gamesFromGenre))
+        .then((parsedGames) => {
+          gamesByGenre[genre.name] = parsedGames;
+        })
+        .then(() => console.log(`Parsed ${genre.name}`))
+        .catch((err) => console.error("Error parsing games from IGDB", err)), // TODO: research better error handling for zod errors
   );
 
   await Promise.all(genrePromises);
@@ -41,18 +51,20 @@ export const loader = async (_args: LoaderFunctionArgs) => {
 
 export default function DiscoverRoute() {
   const { gamesByGenre } = useLoaderData<typeof loader>();
-  console.log("Shouldn't this log in the client?");
   return (
     <Container>
       <div className="flex flex-col gap-y-8">
         {Object.entries(gamesByGenre).map(([genreName, games]) => (
           <div key={genreName}>
             <h2 className="text-2xl font-bold">{genreName}</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-row gap-4">
               {games.map((game) => (
-                <div key={game.id}>
-                  <h3 className="text-xl font-semibold">{game.name}</h3>
-                </div>
+                <ExternalGameCardCover key={game.id} game={game} isSelected={false}>
+                  <div>
+                    <span>Rating: </span>
+                    <span>{Math.floor(game.rating!)}</span>
+                  </div>
+                </ExternalGameCardCover>
               ))}
             </div>
           </div>
