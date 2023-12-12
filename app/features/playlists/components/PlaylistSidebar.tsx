@@ -26,7 +26,7 @@ export function PlaylistSidebar({
 
   return (
     <>
-      <div className="mb-5 flex h-full min-h-screen w-1/4 min-w-[256px] flex-col gap-2 justify-self-start overflow-clip border-b border-l border-r px-3">
+      <div className="fixed mb-5 flex h-full min-h-screen w-72 flex-col gap-2 justify-self-start overflow-clip border-b border-l border-r px-3">
         <Button
           onClick={() => setDialogOpen(true)}
           className="mx-4 my-6"

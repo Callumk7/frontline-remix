@@ -21,6 +21,7 @@ import invariant from "tiny-invariant";
 import { GameViewFilter } from "@/components/games/GameViewFilter";
 import { useSearch } from "@/features/collection/hooks/search";
 import { useFilter } from "@/features/collection/hooks/filter";
+import { Container } from "@/components/ui/layout/containers";
 
 // NOTE: -------------------------------
 // I SHOULD try and co-locate the actions (for adding and removing stuff),
@@ -122,7 +123,7 @@ export default function CollectionView() {
     useSelectGames(sortedGames);
 
   return (
-    <div className="flex w-full flex-col items-center justify-center space-y-10">
+    <Container>
       <GenreFilter
         genres={genres}
         genreFilter={genreFilter}
@@ -170,20 +171,20 @@ export default function CollectionView() {
           ))}
         </GameViewCard>
       ) : (
-        <GameViewList>
-          {sortedGames.map((game) => (
-            <GameListEntry key={game.id} game={game}>
-              <CollectionEntryControls
-                userId={session.id}
-                game={game}
-                playlists={playlists}
-                selectedGames={selectedGames}
-                handleSelectedToggled={handleSelectedToggled}
-              />
-            </GameListEntry>
-          ))}
-        </GameViewList>
-      )}
-    </div>
+          <GameViewList>
+            {sortedGames.map((game) => (
+              <GameListEntry key={game.id} game={game}>
+                <CollectionEntryControls
+                  userId={session.id}
+                  game={game}
+                  playlists={playlists}
+                  selectedGames={selectedGames}
+                  handleSelectedToggled={handleSelectedToggled}
+                />
+              </GameListEntry>
+            ))}
+          </GameViewList>
+        )}
+    </Container>
   );
 }

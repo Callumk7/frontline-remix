@@ -38,9 +38,13 @@ type IGDBGameResponse = {
 	checksum: string;
 }[];
 
-export const getGenres = async () => {
+export const getGenres = async (genreIds?: number[]) => {
 	const url = "https://api.igdb.com/v4/genres";
-	const body = "fields *; limit 20;";
+	let body = "fields *; limit 20;";
+	if (genreIds) {
+		const ids = genreIds.join(",");
+		body += `where id = (${ids});`;
+	} 
 	const response = await fetch(url, { method: "POST", headers: HEADERS, body });
 	const data = await response.json();
 

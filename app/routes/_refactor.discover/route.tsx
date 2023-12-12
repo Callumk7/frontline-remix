@@ -14,7 +14,7 @@ const URL = process.env.IGDB_URL!;
 
 export const loader = async (_args: LoaderFunctionArgs) => {
   // get all genres from IGDB. Not sure how to prioritise genres based on popularity, so we'll just get them all
-  const genres = await getGenres();
+  const genres = await getGenres([4, 5, 8, 10, 11, 13, 14, 15, 16]);
   console.log(genres);
 
   // we store games by their genre, so we can display them easily in the UI
@@ -34,6 +34,9 @@ export const loader = async (_args: LoaderFunctionArgs) => {
           "rating != null",
           "rating > 50",
           "follows > 10",
+          "parent_game = null",
+          "version_parent = null",
+          "themes != (42)"
           // "first_release_date >= 1577836800"
         ],
       })
@@ -53,6 +56,9 @@ export default function DiscoverRoute() {
   const { gamesByGenre } = useLoaderData<typeof loader>();
   return (
     <Container>
+      <div className="w-full border p-5 rounded-md">
+        MENU
+      </div>
       <div className="flex flex-col gap-y-8">
         {Object.entries(gamesByGenre).map(([genreName, games]) => (
           <div key={genreName}>
