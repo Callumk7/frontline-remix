@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
 
 export function GameViewCard({ children }: { children: React.ReactNode }) {
   const container = {

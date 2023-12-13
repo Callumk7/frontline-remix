@@ -33,12 +33,15 @@ export const fetchGamesFromIGDB = async (
 	options: FetchOptions,
 	headersOverride?: Record<string, string>,
 ): Promise<unknown[]> => {
+
 	let body = "";
+
+	const FULL_GAME_FIELDS =
+		"fields name, artworks.image_id, screenshots.image_id, aggregated_rating, aggregated_rating_count, cover.image_id, storyline, first_release_date, genres.name, follows, involved_companies, rating;";
 
 	if (options.fields) {
 		if (options.fields === "full") {
-			body +=
-				"fields name, artworks.image_id, screenshots.image_id, aggregated_rating, aggregated_rating_count, cover.image_id, storyline, first_release_date, genres.name, follows, involved_companies, rating;";
+			body += FULL_GAME_FIELDS;
 		} else {
 			body += `fields ${options.fields.join(", ")};`;
 		}
@@ -72,7 +75,7 @@ export const fetchGamesFromIGDB = async (
 	try {
 		const res = await fetch(baseUrl, { method: "POST", headers, body });
 		const json = await res.json();
-		return json as unknown;
+		return json as unknown[];
 	} catch (e) {
 		console.error(e);
 		throw new Error("Error fetching games from IGDB");

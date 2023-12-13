@@ -18,6 +18,7 @@ model User {
   updatedAt       DateTime               @default(now()) @updatedAt
   games           UserGameCollection[]
   playlists       Playlist[]
+  activePlaylistId Int?
   playlistFollows FollowersOnPlaylists[]
   comments        Comment[]
   accounts        Account[]

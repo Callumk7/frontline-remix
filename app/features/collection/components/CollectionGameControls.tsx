@@ -52,6 +52,7 @@ export function CollectionEntryControls({
   );
   const timerRef = useRef<number | null>(null);
 
+  // See note above, timer for the rating slider
   useEffect(() => {
     return () => {
       if (timerRef.current !== null) {

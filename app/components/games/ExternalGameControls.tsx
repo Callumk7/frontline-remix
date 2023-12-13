@@ -1,4 +1,4 @@
-import { IGDBGame } from "@/features/search/igdb";
+import { IGDBGame } from "@/types/api/igdb";
 import { Button } from "../ui/button";
 import { useFetcher } from "@remix-run/react";
 import { Spinner } from "../ui/icons/Spinner";
